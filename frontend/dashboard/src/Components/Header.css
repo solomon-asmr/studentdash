@@ -1,0 +1,38 @@
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Distribute items evenly */
+    height: 100px;
+    padding: 0 20px; /* Add padding to space out elements */
+    background-color: #f0f0f0; /* Add a background color */
+}
+
+.container {
+    border-radius: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+.sd-logo {
+    width: 10%; /* Set a fixed width */
+    text-align: center; /* Center the text */
+    background-color: darkcyan;
+    color: #fff; /* Text color */
+}
+
+.welcome {
+    background-color: darkorange;
+    color: #fff; /* Text color */
+}
+
+.details {
+    background-color: darkcyan;
+    flex-grow: 1; /* Allow this container to grow to fill available space */
+}
+
+.school-logo {
+    width: 10%; /* Set a fixed width */
+    text-align: center; /* Center the text */
+    background-color: yellow;
+    color: #000; /* Text color */
+}
