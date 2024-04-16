@@ -11,15 +11,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     header('Access-Control-Allow-Origin: *');
 
-    $user = $DB->get_record('user', array('idnumber' => $USER->idnumber));
+    $courses = enrol_get_all_users_courses($USER->id);
 
-    $data = array(
-        'studentID' => $user->idnumber,
-        'firstname' => $user->firstname,
-        'lastname' => $user->lastname,
-        'institution' => $user->institution,
-        'department' => $user->department
-    );
+    // Convert the $courses object to an associative array
+    $courses_array = array();
+    foreach ($courses as $course) {
+        $courses_array[] = array(
+            'id' => $course->id,
+            'fullname' => $course->fullname,
+        );
+    }
 
     // Set the appropriate headers to indicate JSON response and allow cross-origin requests
     header('Access-Control-Allow-Origin: http://localhost:3000');
@@ -27,9 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 
-
-    // Output the user data as JSON
-    echo json_encode($data);
+    // Output the filtered course data as JSON
+    echo json_encode($courses_array);
 } else {
     // Handle unsupported request methods (e.g., POST, PUT, DELETE)
     http_response_code(405); // Method Not Allowed

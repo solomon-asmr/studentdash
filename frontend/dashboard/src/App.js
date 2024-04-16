@@ -6,20 +6,25 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
 
-    axios.defaults.baseURL = 'http://localhost/local/studentdash';
-
     const [studentInfo, setStudentInfo] = useState({});
+    const [courses, setCourses] = useState([]);
+
 
     // Function to fetch user data from the database
     const fetchUserData = async() => {
         try {
-            const response = await axios.get('/ajax/fetch_user_data.php'); // Replace with your API endpoint
+            const response = await axios.get('/local/studentdash/ajax/fetch_user_data.php');
             console.log(response);
             setStudentInfo(response.data);
+            const courses = await axios.get('/local/studentdash/ajax/fetch_courses.php');
+            console.log(courses);
+            setCourses(courses.data);
+
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            console.error(error);
         }
     };
+
 
     useEffect(() => {
         fetchUserData();
@@ -29,7 +34,7 @@ function App() {
     return (
         <>
 
-            <Dashboard studentInfo={studentInfo} courses={null}/>
+            <Dashboard studentInfo={studentInfo} courses={courses}/>
 
         </>
     );

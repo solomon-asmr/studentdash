@@ -32,7 +32,7 @@ $PAGE->set_heading('Student Dashboard Custom Page');
 $PAGE->set_title('StudentDash');
 
 $data = (object)[
-    'name' => 'Or',
+    'name' => $USER->firstname,
 ];
 
 echo $OUTPUT->header();
