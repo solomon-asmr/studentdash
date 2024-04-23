@@ -8,9 +8,7 @@ require_login();
 // Handle the AJAX request
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Perform any necessary operations here
-
-    header('Access-Control-Allow-Origin: *');
-
+    
     $user = $DB->get_record('user', array('id' => $USER->id));
 
     $data = array(
