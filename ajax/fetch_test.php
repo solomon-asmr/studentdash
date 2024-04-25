@@ -8,7 +8,7 @@ require_login();
 // Handle the AJAX request
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Perform any necessary operations here
-    
+
     $user = $DB->get_record('user', array('id' => $USER->id));
 
     $data = array(
@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'lastname' => $user->lastname,
         'institution' => $user->institution,
         'department' => $user->department,
+        'email' => $user->email,
+        'phone' => $user->phone1,
         'courses' => array()
     );
 
