@@ -38,7 +38,7 @@ const Header = ({studentInfo}) => {
                                 <td>{studentInfo.department || 'undefined'}</td>
                                 <td>{studentInfo.section || 'undefined'}</td>
                                 <td>{studentInfo.year || 'undefined'}</td>
-                                <td>{studentInfo.avg || 'undefined'}</td>
+                                <td>{studentInfo.average || 'undefined'}</td>
                             </tr>
                             <tr>
                                 <td>{studentInfo.studentID}</td>
