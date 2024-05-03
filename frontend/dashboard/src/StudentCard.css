@@ -1,0 +1,17 @@
+
+.card-column {
+    border: 1px solid transparent;
+    background-color: rgb(255, 192, 0);
+    border-radius: 10px;
+    margin: 5px;
+    align-content: center;
+    gap: 10;
+
+}
+.keyboard_backspace{
+    background-color: rgb(90, 228, 198);
+    border-radius: 20px;
+    
+    
+}
+
