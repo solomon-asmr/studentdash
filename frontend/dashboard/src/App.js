@@ -14,7 +14,8 @@ import {
     Route,
     Link
 } from 'react-router-dom';
-import { Container } from 'react-bootstrap';
+import {Container} from 'react-bootstrap';
+
 function App() {
 
     axios.defaults.baseURL = 'http://localhost/local/studentdash';
@@ -40,15 +41,14 @@ function App() {
     return (
         <>
 
-            <Dashboard studentInfo={studentInfo} courses={null}/>
-            <Router>
-                <Container className="d-flex justify-content-center" style={{ backgroundColor: '#1f4e79' }}>
+            <Router basename={'/local/studentdash/dashboard.php'}>
+                <Container className="d-flex justify-content-center" style={{backgroundColor: '#1f4e79'}}>
                     .
                     <Routes>
-                        <Route path="/" element={<SubjectCard/>} />
-                        <Route path="/details" element={<CourseDetails/>} />
-                        <Route path="/back" element={<SubjectCard/>} />
-                        <Route path="/ToDo" element={<ToDoList/>} />
+                        <Route path="/" element={<SubjectCard/>}/>
+                        <Route path="/details" element={<CourseDetails/>}/>
+                        <Route path="/back" element={<SubjectCard/>}/>
+                        <Route path="/ToDo" element={<ToDoList/>}/>
                     </Routes>
 
                 </Container>

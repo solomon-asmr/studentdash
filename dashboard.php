@@ -39,16 +39,6 @@ echo $OUTPUT->header();
 
 echo $OUTPUT->render_from_template('local_studentdash/dashboard', $data);
 
-//echo '<!-- Embed React development server -->
-//<iframe src="http://localhost:3000" style="width: 100%; height: 600px; border: none;"></iframe>
-//';
-
-//echo '<!-- Include built React app files -->
-//<link rel="stylesheet" href="/local/studentdash/frontend/dashboard/build/static/css/main.f855e6bc.css">
-//<div id="dashboard"></div>
-//<script src="/local/studentdash/frontend/dashboard/build/static/js/main.a542f504.js" defer></script>
-//';
-
 echo $OUTPUT->footer();
 
 
