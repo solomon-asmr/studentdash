@@ -1,0 +1,31 @@
+.navbar {
+    background-color: #1f4e79; /* Clear the default background */
+  }
+  
+  body, html {      
+    direction: rtl;
+    background-color: #1f4e79; /* Background color of the space between logo and info */
+    display: 'flex';
+    justify-content: center;
+}
+@media (max-width: 426px) {
+    .specialButton {
+        font-size: 12px; 
+    }
+    .logo-image{
+        width: 110px;
+    }
+    .logo-image2{
+        margin-bottom: 0;
+        height: 30px;
+        width: 60px;
+        top: 100px;
+    }
+    *{
+        font-size: small;
+    }
+
+}
+  
+
+ 
