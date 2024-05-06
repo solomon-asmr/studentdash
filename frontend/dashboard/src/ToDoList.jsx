@@ -1,0 +1,72 @@
+import React, { useState } from 'react';
+import { Container, Button, InputGroup, FormControl, ListGroup } from 'react-bootstrap';
+import './todolist.css'; // Make sure your custom styles are adjusted for Bootstrap if necessary
+import NavigationBar  from "./NavigationBar";
+function ToDoList() {
+    const [newTask, setNewTask] = useState('');
+    const [tasks, setTasks] = useState([]);
+
+    const handleInputChange = (event) => {
+        setNewTask(event.target.value);
+    };
+
+    const addTask = () => {
+        if (newTask) {
+            setTasks([...tasks, newTask]);
+            setNewTask('');
+        }
+    };
+
+    const deleteTask = (index) => {
+        const newTasks = [...tasks];
+        newTasks.splice(index, 1);
+        setTasks(newTasks);
+    };
+
+    const moveTaskUp = (index) => {
+        if (index > 0) {
+            const newTasks = [...tasks];
+            [newTasks[index - 1], newTasks[index]] = [newTasks[index], newTasks[index - 1]];
+            setTasks(newTasks);
+        }
+    };
+
+    const moveTaskDown = (index) => {
+        if (index < tasks.length - 1) {
+            const newTasks = [...tasks];
+            [newTasks[index + 1], newTasks[index]] = [newTasks[index], newTasks[index + 1]];
+            setTasks(newTasks);
+        }
+    };
+
+    return (
+        <Container style={{ backgroundColor: '#1f4e79' }}>
+            <NavigationBar/>
+        <Container className="to-do-list">
+            <h1>הוספת מסימות אישית</h1>
+            <InputGroup className="mb-3">
+                <FormControl
+                    placeholder="תכניס מסימות"
+                    value={newTask}
+                    onChange={handleInputChange}
+                />
+                <Button variant="success" onClick={addTask}>מוסיף</Button>
+            </InputGroup>
+            <ListGroup>
+                {tasks.map((task, index) => (
+                    <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+                        <span className="text">{task}</span>
+                        <div>
+                            <Button variant="danger" onClick={() => deleteTask(index)}>תמחוק</Button>
+                            <Button variant="info" onClick={() => moveTaskUp(index)}>⬆️</Button>
+                            <Button variant="info" onClick={() => moveTaskDown(index)}>⬇️</Button>
+                        </div>
+                    </ListGroup.Item>
+                ))}
+            </ListGroup>
+        </Container>
+        </Container>
+    );
+}
+
+export default ToDoList;
