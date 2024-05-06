@@ -14,7 +14,6 @@ import {Container} from 'react-bootstrap';
 function App() {
 
     const [studentInfo, setStudentInfo] = useState({});
-    const [courses, setCourses] = useState([]);
 
 
     // Function to fetch user data from the database
@@ -23,9 +22,6 @@ function App() {
             const response = await axios.get('/ajax/fetch_data.php'); // Replace with your API endpoint
             console.log(response);
             setStudentInfo(response.data);
-            const courses = await axios.get('/local/studentdash/ajax/fetch_courses.php');
-            console.log(courses);
-            setCourses(courses.data);
 
         } catch (error) {
             console.error(error);
@@ -40,7 +36,7 @@ function App() {
 
     return (
         <>
-            <Router basename={'/local/studentdash/dashboard.php'}>
+            <Router basename={'/local/studentdash/dashboard.php'} studentInfo={studentInfo}>
                 <Container className="d-flex justify-content-center" style={{backgroundColor: '#1f4e79'}}>
                     <Routes>
                         <Route path="/" element={<SubjectCard/>}/>
