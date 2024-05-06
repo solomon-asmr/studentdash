@@ -5,9 +5,7 @@ const CourseCard = ({course}) => {
     return (
         <Card>
             <Card.Body>
-                <Card.Title>{course.title || 'COURSE-TITLE'}</Card.Title>
-                <Card.Text>{course.description || 'COURSE-DESCRIPTION'}</Card.Text>
-                <Card.Link href="#">View Course</Card.Link>
+                <Card.Title>{course.fullname || 'COURSE-TITLE'}</Card.Title>
             </Card.Body>
         </Card>
     );

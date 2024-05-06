@@ -14,17 +14,25 @@ import {Container} from 'react-bootstrap';
 function App() {
 
     const [studentInfo, setStudentInfo] = useState({});
+    const [courses, setCourses] = useState([]);
+
 
     // Function to fetch user data from the database
     const fetchUserData = async() => {
         try {
+            const response = await axios.get('/local/studentdash/ajax/fetch_user_data.php');
             const response = await axios.get('/ajax/fetch_data.php'); // Replace with your API endpoint
             console.log(response);
             setStudentInfo(response.data);
+            const courses = await axios.get('/local/studentdash/ajax/fetch_courses.php');
+            console.log(courses);
+            setCourses(courses.data);
+
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            console.error(error);
         }
     };
+
 
     useEffect(() => {
         fetchUserData();
