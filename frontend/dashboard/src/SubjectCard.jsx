@@ -27,8 +27,9 @@ function SubjectCard({studentInfo}) {
                                     <Image src="frontend/dashboard/build//expand_content.svg" alt="expand content" width="30"/>
                                 </Link>
                                 <h2>{course.fullname}</h2>
-                                <Image className="keyboard_backspace" src="frontend/dashboard/build//keyboard_backspace.png" alt=""
-                                       width={50} height={30}/>
+                                <a href={course.url}><Image className="keyboard_backspace"
+                                                            src="frontend/dashboard/build//keyboard_backspace.png" alt=""
+                                                            width={50} height={30}/></a>
                             </Card.Header>
                             <Card.Body>
                                 <Row>
