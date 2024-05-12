@@ -3,8 +3,8 @@ import {Container, Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import './NavigationBar.css';
 
 function NavigationBar({studentInfo}) {
-    const imgUrl = "/studentDash.png";
-    const imgUrl2 = "/sapir-logo.jpg";
+    const imgUrl = "frontend/dashboard/build/studentDash.png";
+    const imgUrl2 = "frontend/dashboard/build//sapir-logo.jpg";
     return (
         <Navbar expand="lg" style={{backgroundColor: '#1f4e79'}} variant="light" dir="rtl">
             <Container fluid style={{position: 'relative', backgroundColor: '#1f4e79'}}>
