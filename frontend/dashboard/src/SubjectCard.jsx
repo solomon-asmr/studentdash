@@ -15,10 +15,12 @@ function SubjectCard() {
                         <Card className="subject-card">
                             <Card.Header className="d-flex justify-content-between align-items-center card-header">
                                 <Link to="/details">
-                                    <Image src="/expand_content.svg" alt="expand content" width="30"/>
+                                    <Image src="frontend/dashboard/build//expand_content.svg" alt="expand content" width="30"/>
                                 </Link>
                                 <h2>תכנות מונחה עצמית בפיתון</h2>
-                                <Image className='keyboard_backspace' src="/keyboard_backspace.png" alt="" width={50} height={30}/>
+                                <Image className="keyboard_backspace" src="frontend/dashboard/build//keyboard_backspace.png" alt=""
+                                       width={50} height={30}/>
+
                             </Card.Header>
                             <Card.Body>
                                 <Row>
@@ -39,7 +41,7 @@ function SubjectCard() {
                                     <Col className="d-flex justify-content-between card-column">
                                         <div>
                                             <span>מרצה</span>
-                                            <Image src="/contact_mail.png" alt=""/>
+                                            <Image src="frontend/dashboard/build//contact_mail.png" alt=""/>
                                         </div>
                                         <div>
                                             <span>ד"ר יעוש חסידים</span>

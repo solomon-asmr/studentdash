@@ -3,8 +3,9 @@ import { Container, Navbar, Nav, NavDropdown } from 'react-bootstrap';
 import './NavigationBar.css';
 
 function NavigationBar() {
-    const imgUrl = "/studentDash.png";
-    const imgUrl2 = "/sapir-logo.jpg";
+    const imgUrl = "frontend/dashboard/build/studentDash.png";
+    const imgUrl2 = "frontend/dashboard/build//sapir-logo.jpg";
+
 
     return (
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
