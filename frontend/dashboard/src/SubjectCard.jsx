@@ -37,7 +37,7 @@ function SubjectCard({studentInfo}) {
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">
                                         <h2>2</h2>
-                                        <span>הקלתות טרם נצפו</span>
+                                        <span>הקלטות טרם נצפו</span>
                                     </Col>
                                 </Row>
                                 <Row>
@@ -47,12 +47,12 @@ function SubjectCard({studentInfo}) {
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">
                                         <div>
-                                            <span>מרצה</span>
+                                            <span>מרצה: </span>
                                             <Image src="/contact_mail.png" alt=""/>
                                         </div>
                                         <div>
-                                            <span>ד"ר יעוש חסידים</span>
-                                            <span>Yoash@sapir.edu.co.il</span>
+                                            <span>{course.teachername || ' ד"ר יועש חסידים '}</span>
+                                            <span>{course.teacheremail || 'yoash@sapir.edu.co.il'} </span>
                                         </div>
                                     </Col>
                                 </Row>
