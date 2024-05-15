@@ -46,9 +46,11 @@ function NavigationBar({studentInfo}) {
                             <NavDropdown.Item>{studentInfo.department}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="מגמה" id="specialization-dropdown">
+                            {/* todo */}
                             <NavDropdown.Item>מערכות מידע</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="שנת לימוד" id="study-year-dropdown">
+                            {/* todo */}
                             <NavDropdown.Item>ג</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown title="ממוצע ציונים" id="grades-origin-dropdown">
