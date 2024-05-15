@@ -50,7 +50,7 @@ function SubjectCard({studentInfo}) {
                                     <Col className="d-flex justify-content-between card-column">
                                         <div>
                                             <span>מרצה: </span>
-                                            <Image src="frontend/dashboard/build//contact_mail.png" alt=""/>
+                                            <Image src="frontend/dashboard/build/contact_mail.png" alt=""/>
                                         </div>
                                         <div>
                                             <span>{course.lecturer || ' ד"ר יועש חסידים '}</span>
