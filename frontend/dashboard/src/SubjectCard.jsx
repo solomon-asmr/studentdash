@@ -23,7 +23,7 @@ function SubjectCard({studentInfo}) {
                     <Col key={idx}>
                         <Card style={{border: '1px solid transparent', borderRadius: 20}}>
                             <Card.Header className="d-flex justify-content-between align-items-center">
-                                <Link to={`/details/${course.id}`}>
+                                <Link to={`/details/`}>
                                     <Image src="frontend/dashboard/build//expand_content.svg" alt="expand content" width="30"/>
                                 </Link>
                                 <h2>{course.fullname}</h2>
@@ -53,8 +53,8 @@ function SubjectCard({studentInfo}) {
                                             <Image src="frontend/dashboard/build//contact_mail.png" alt=""/>
                                         </div>
                                         <div>
-                                            <span>{course.teachername || ' ד"ר יועש חסידים '}</span>
-                                            <span>{course.teacheremail || 'yoash@sapir.edu.co.il'} </span>
+                                            <span>{course.lecturer || ' ד"ר יועש חסידים '}</span>
+                                            <span>{course.lectureremail || 'yoash@sapir.edu.co.il'} </span>
                                         </div>
                                     </Col>
                                 </Row>
