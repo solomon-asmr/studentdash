@@ -38,7 +38,8 @@ function SubjectCard({studentInfo}) {
                                         <span>משימות ממתינות</span>
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">
-                                        <h2>2</h2>
+                                        {/* todo */}
+                                        <h2>{Math.floor(Math.random() * 7 + 1)}</h2>
                                         <span>הקלטות טרם נצפו</span>
                                     </Col>
                                 </Row>
