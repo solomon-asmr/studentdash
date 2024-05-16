@@ -4,29 +4,29 @@ import { useParams, Link } from 'react-router-dom';
 import './CourseDetails.css'; // Make sure to adjust the CSS file for Bootstrap compatibility
 import NavigationBar from './NavigationBar.jsx';
 
+
 function CourseDetails({ studentInfo }) {
     const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
-    const [lectures, setLectures] = useState([]);
-    const [lecturer, setLecturer] = useState({});
+    const [schedule, setSchedule] = useState([]);
+    const [exams, setExams] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-
     useEffect(() => {
         if (studentInfo && courseId) {
             const course = studentInfo.courses.find(c => c.id === courseId);
             if (course) {
-                setTasks(course.tasks);
-                setCourseName(course.fullname);
-                setLectures(course.lectures || []);
-                setLecturer(course.lecturer || {});
+                setTasks(course.tasks || []);
+                setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
+                setExams(course.exams || []);
+                setCourseName(course.fullname || '');
             }
             setIsLoading(false);
         }
     }, [studentInfo, courseId]);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div><h2>Loading...</h2></div>;
     }
 
     return (
@@ -76,25 +76,17 @@ function CourseDetails({ studentInfo }) {
                                 <th></th>
                                 <th>יום בשבוע</th>
                                 <th>שעות</th>
-                                <th>הרצאות שהועברו</th>
+                                {/*<th>הרצאות שהועברו</th>*/}
                             </tr>
 
-
-
-                            <tr>
-                                <td>הרצאות</td>
-                                <td>ד"ר חסידים יואש</td>
-                                <td>יום חמישי</td>
-                                <td>10:15 - 13:30</td>
-                                <td>6/12</td>
-                            </tr>
-                            <tr>
-                                <td>תרגול</td>
-                                <td>מר דדון שלום</td>
-                                <td>יום חמישי</td>
-                                <td>08:30 - 10:00</td>
-                                <td>5/12</td>
-                            </tr>
+                            {schedule.map((lecture, index) => (
+                                <tr key={index}>
+                                    <td>{lecture.type ||'הרצאות'}</td>
+                                    <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
+                                    <td>{lecture.day_of_week || 'יום חמישי'}</td>
+                                    <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>
+                                </tr>
+                            ))}
 
                     </Table>
                 </Col>
@@ -162,31 +154,16 @@ function CourseDetails({ studentInfo }) {
                                 <th>מיקום</th>
                             </tr>
 
-
-                            <tr>
-                                <td>1</td>
-                                <td>מבחן אמצע</td>
-                                <td>22/02/24</td>
-                                <td>09:00 - 11:00</td>
-                                <td>2 שעות</td>
-                                <td>מקוון</td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>מבחן אמצע</td>
-                                <td>12/04/24</td>
-                                <td>09:00 - 12:00</td>
-                                <td>3 שעות</td>
-                                <td>טרם נקבע</td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>מבחן אמצע</td>
-                                <td>01/05/24</td>
-                                <td>12:00 - 15:00</td>
-                                <td>3 שעות</td>
-                                <td>טרם נקבע</td>
-                            </tr>
+                            {exams.map((exam, index) => (
+                                <tr key={index} >
+                                    <td>{index + 1 || '1'}</td>
+                                    <td>{exam.exam_name || 'מבחן אמצע' }</td>
+                                    <td>{exam.exam_date || '22/02/24'}</td>
+                                    <td>{exam.exam_time || '09:00 '} </td>
+                                    <td>{exam.exam_duration || '2'} שעות </td>
+                                    <td>{exam.exam_location || 'מקוון'}</td>
+                                </tr>
+                            ))}
 
                         </Table>
                     </Col>
