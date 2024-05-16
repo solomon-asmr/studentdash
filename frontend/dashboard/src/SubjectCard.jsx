@@ -43,7 +43,7 @@ function SubjectCard({studentInfo}) {
                                 </Row>
                                 <Row>
                                     <Col className="d-flex justify-content-between card-column">
-                                        <h2>{getDaysDifference(new Date(course.events[0].timestart), new Date())}</h2>
+                                        <h2>{/*{getDaysDifference(new Date(course.events[0].timestart), new Date())}*/}10</h2>
                                         <span>ימים למועד א</span>
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">

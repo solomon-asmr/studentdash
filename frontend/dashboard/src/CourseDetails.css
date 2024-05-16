@@ -1,39 +1,38 @@
-main{
-    
+/*main{
+
     background-color: white;
    
-  }
-  .lecture-time{
+  }*/
+ /* .lecture-time{
     width: 60%;
     border: 1px solid transparent;  
     text-align: center;
     background-color: rgb(255, 192, 0);
     margin: 10px;
     border-radius: 15px;
-  }
+  }*/
  
-  .subject-detail{
+/*  .subject-detail{
     background-color: #5ae4c6;
     border: 1px solid transparent;  
     text-align: center;
     border-radius: 10px;
     margin: 10px;
-    overflow-x: hidden; /* Enables horizontal scrolling */
-    margin:10px;
+    overflow-x: auto; !* Enables horizontal scrolling *!
     
-  }
-  .subject-detail table{
+  }*/
+  /*.subject-detail table{
     width: 95%;
-    flex: 1 1 1;
+    flex: 1;
     border-collapse: collapse;
     background-color: white;  
     margin: 10px;
-  }
-  .subject-navbar{  
+  }*/
+ /* .subject-navbar{
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
-  }
+  }*/
   .add-activity{
     background-color:  rgb(255, 192, 0);
     border: 1px solid transparent;
@@ -45,7 +44,6 @@ main{
     font-size: 16px;        /* Text size */
  
       margin-bottom: 10px;
-      left: 0;
   }
   th, td {
     border-bottom: 1px solid black; /* Adds a horizontal line below each row */
@@ -63,13 +61,7 @@ main{
     border-radius: 10px;   
     
   }
-  .keyboard_backspace{
-    background-color: rgb(90, 228, 198);
-    border-radius: 20px;
-    margin-left: 0px;
-    
-    
-}
+
   @media (max-width: 992px) and (min-width: 768px) {
     .responsive-table-col {
         flex: 0 0 100%;
