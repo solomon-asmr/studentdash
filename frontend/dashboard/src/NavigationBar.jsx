@@ -1,14 +1,14 @@
 import React from 'react';
-import {Container, Navbar, Nav,Image, NavDropdown} from 'react-bootstrap';
+import {Container, Navbar, Nav, Image, NavDropdown} from 'react-bootstrap';
 import './NavigationBar.css';
 
 function NavigationBar({studentInfo}) {
     return (
         <Navbar expand="lg" style={{backgroundColor: '#1f4e79'}} variant="light" dir="rtl">
-            <Container fluid style={{position: 'relative', backgroundColor: '#1f4e79', marginTop:'25px'}}>
+            <Container fluid style={{position: 'relative', backgroundColor: '#1f4e79', marginTop: '25px'}}>
                 <Navbar.Brand href="#" style={{position: 'relative', right: 0, display: 'flex', alignItems: 'center'}}>
-                    <Image src="frontend/dashboard/build/studentDash.png" alt="Logo" width={200} className="d-inline-block align-top logo-image"
-                         style={{borderRadius: 10}}/>
+                    <Image src="/studentDash.png" alt="Logo" width={200} className="d-inline-block align-top logo-image"
+                           style={{borderRadius: 10}}/>
                     <Navbar.Text className="specialButton" style={{
                         position: 'absolute',
                         right: '85%', // Align to the left side of the Navbar.Brand
@@ -56,7 +56,7 @@ function NavigationBar({studentInfo}) {
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
-                <Image src="frontend/dashboard/build/sapir-logo.jpg" className="logo-image2" alt="College Logo" width={100} style={{
+                <Image src="/sapir-logo.jpg" className="logo-image2" alt="College Logo" width={100} style={{
                     position: 'absolute',
                     left: 0,
                     top: '60%',

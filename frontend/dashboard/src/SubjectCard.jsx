@@ -23,8 +23,8 @@ function SubjectCard({studentInfo}) {
                     <Col key={idx}>
                         <Card style={{border: '1px solid transparent', borderRadius: 20}}>
                             <Card.Header className="d-flex justify-content-between align-items-center">
-                                <Link to={`/details/`}>
-                                    <Image src="frontend/dashboard/build//expand_content.svg" alt="expand content" width="30"/>
+                                <Link to={`/details/${course.id}`}>
+                                    <Image src="frontend/dashboard/build/expand_content.svg" alt="expand content" width="30"/>
                                 </Link>
                                 <h2>{course.fullname}</h2>
                                 <a href={course.url}><Image className="keyboard_backspace"
@@ -45,7 +45,7 @@ function SubjectCard({studentInfo}) {
                                 </Row>
                                 <Row>
                                     <Col className="d-flex justify-content-between card-column">
-                                        <h2>{/*{getDaysDifference(new Date(course.events[0].timestart), new Date())}*/}10</h2>
+                                        <h2>{getDaysDifference(new Date(course.events[0].timestart), new Date())}</h2>
                                         <span>ימים למועד א</span>
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">
