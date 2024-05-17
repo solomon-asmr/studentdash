@@ -97,7 +97,9 @@ function fetch_user_courses($userId)
             'lectureremail' => $lecturer->email,
             'url' => (new moodle_url('/course/view.php', array('id' => $course->id)))->out(false),
             'tasks' => fetch_course_tasks($userId, $course->id),
-            'events' => fetch_course_events($userId, $course->id)
+            'events' => fetch_course_events($userId, $course->id),
+            'schedule' => fetch_course_schedule($course->id),
+            'exams' => fetch_course_exams($course->id)
         );
         $userCourses[] = $courseData;
     }
@@ -105,24 +107,23 @@ function fetch_user_courses($userId)
     return $userCourses;
 }
 
-
 function fetch_course_tasks($userId, $courseId)
 {
     global $DB;
 
     $assignmentsSQL = "
         SELECT
-            'Assignment' AS Task_Type,
-            a.name AS Task_Name,
-            DATE(FROM_UNIXTIME(a.duedate)) AS Due_Date,
+            'Assignment' AS task_type,
+            a.name AS task_name,
+            DATE(FROM_UNIXTIME(a.duedate)) AS due_date,
             CASE
                 WHEN s.id IS NOT NULL THEN 'Submitted'
                 ELSE 'Not Submitted'
-            END AS Task_Status,
+            END AS task_status,
             CASE
                 WHEN s.id IS NOT NULL THEN FROM_UNIXTIME(s.timemodified)
                 ELSE NULL
-            END AS Modify_Date
+            END AS modify_date
         FROM
             {user} u
         JOIN
@@ -149,17 +150,17 @@ function fetch_course_tasks($userId, $courseId)
 
     $quizzesSQL = "
         SELECT
-            'Quiz' AS Task_Type,
-            q.name AS Task_Name,
-            DATE(FROM_UNIXTIME(q.timeclose)) AS Due_Date,
+            'Quiz' AS task_type,
+            q.name AS task_name,
+            DATE(FROM_UNIXTIME(q.timeclose)) AS due_date,
             CASE
                 WHEN qa.id IS NOT NULL THEN 'Submitted'
                 ELSE 'Not Submitted'
-            END AS Task_Status,
+            END AS task_status,
             CASE
                 WHEN qa.timefinish IS NOT NULL THEN FROM_UNIXTIME(qa.timefinish)
                 ELSE NULL
-            END AS Modify_Date
+            END AS modify_date
         FROM
             {user} u
         JOIN
@@ -213,7 +214,6 @@ function fetch_course_events($userId, $courseId)
 
     $courseEvents = array();
     foreach ($calendarEvents as $event) {
-
         $courseEvents[] = array(
             'id' => $event->id,
             'name' => $event->name,
@@ -224,6 +224,56 @@ function fetch_course_events($userId, $courseId)
     }
 
     return $courseEvents;
+}
+
+function fetch_course_schedule($courseId)
+{
+    global $DB;
+
+    // Assuming events in mdl_event table are used to schedule lectures and classes
+    $scheduleSQL = "
+        SELECT
+            CONCAT(u.firstname, ' ', u.lastname) AS lecturer_name,
+            DAYNAME(FROM_UNIXTIME(e.timestart)) AS day_of_week,
+            TIME_FORMAT(FROM_UNIXTIME(e.timestart), '%H:%i') AS start_time,
+            TIME_FORMAT(FROM_UNIXTIME(e.timestart + e.timeduration), '%H:%i') AS end_time,
+            CASE 
+                WHEN e.eventtype = 'course' THEN 'lecture'
+                WHEN e.eventtype = 'user' THEN 'practice'
+                ELSE 'other'
+            END AS type
+        FROM
+            {event} e
+        JOIN
+            {user} u ON u.id = e.userid
+        WHERE
+            e.courseid = :courseid
+        ORDER BY
+            e.timestart
+    ";
+    $schedule = $DB->get_records_sql($scheduleSQL, array('courseid' => $courseId));
+    return array_values($schedule); // Ensure the result is returned as an array
+}
+
+function fetch_course_exams($courseId)
+{
+    global $DB;
+
+    $examSQL = "
+        SELECT
+            q.id AS exam_id,
+            q.name AS exam_name,
+            DATE(FROM_UNIXTIME(q.timeclose)) AS exam_date,
+            TIME_FORMAT(FROM_UNIXTIME(q.timeclose), '%H:%i') AS exam_time,
+            SEC_TO_TIME(q.timelimit) AS exam_duration,
+            q.intro AS exam_location
+        FROM
+            {quiz} q
+        WHERE
+            q.course = :courseid
+    ";
+    $exams = $DB->get_records_sql($examSQL, array('courseid' => $courseId));
+    return array_values($exams); // Ensure the result is returned as an array
 }
 
 function set_json_headers()
@@ -238,3 +288,4 @@ function handle_invalid_request()
 {
     http_response_code(405); // Method Not Allowed
 }
+?>

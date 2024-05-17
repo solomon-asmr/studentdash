@@ -31,20 +31,18 @@ function App() {
     }, []);
 
     return (
-        <>
+        <Container>
             <Router basename={'/local/studentdash/dashboard.php'}>
-                <Container className="d-flex justify-content-center" style={{backgroundColor: '#1f4e79'}}>
                     <Routes>
                         <Route path="/" element={isLoading ? <Spinner animation="border"/> : studentInfo ?
                             <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
-                        <Route path="/details" element={<CourseDetails studentInfo={studentInfo}/>}/>
+                        <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo} />} />
                         <Route path="/back"
                                element={studentInfo ? <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
                         <Route path="/ToDo" element={<ToDoList studentInfo={studentInfo}/>}/>
                     </Routes>
-                </Container>
             </Router>
-        </>
+        </Container>
     );
 }
 
