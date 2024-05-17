@@ -23,12 +23,13 @@ function SubjectCard({studentInfo}) {
                     <Col key={idx}>
                         <Card style={{border: '1px solid transparent', borderRadius: 20}}>
                             <Card.Header className="d-flex justify-content-between align-items-center">
-                                <Link to={`/details/${course.id}`}>
+                                <Link to={`/details/`}>
                                     <Image src="frontend/dashboard/build//expand_content.svg" alt="expand content" width="30"/>
                                 </Link>
                                 <h2>{course.fullname}</h2>
-                                <Image className="keyboard_backspace" src="frontend/dashboard/build//keyboard_backspace.png" alt=""
-                                       width={50} height={30}/>
+                                <a href={course.url}><Image className="keyboard_backspace"
+                                                            src="frontend/dashboard/build//keyboard_backspace.png" alt=""
+                                                            width={50} height={30}/></a>
                             </Card.Header>
                             <Card.Body>
                                 <Row>
@@ -37,7 +38,8 @@ function SubjectCard({studentInfo}) {
                                         <span>משימות ממתינות</span>
                                     </Col>
                                     <Col className="d-flex justify-content-between card-column">
-                                        <h2>2</h2>
+                                        {/* todo */}
+                                        <h2>{Math.floor(Math.random() * 7 + 1)}</h2>
                                         <span>הקלטות טרם נצפו</span>
                                     </Col>
                                 </Row>
@@ -49,11 +51,11 @@ function SubjectCard({studentInfo}) {
                                     <Col className="d-flex justify-content-between card-column">
                                         <div>
                                             <span>מרצה: </span>
-                                            <Image src="frontend/dashboard/build//contact_mail.png" alt=""/>
+                                            <Image src="frontend/dashboard/build/contact_mail.png" alt=""/>
                                         </div>
                                         <div>
-                                            <span>{course.teachername || ' ד"ר יועש חסידים '}</span>
-                                            <span>{course.teacheremail || 'yoash@sapir.edu.co.il'} </span>
+                                            <span>{course.lecturer || ' ד"ר יועש חסידים '}</span>
+                                            <span>{course.lectureremail || 'yoash@sapir.edu.co.il'} </span>
                                         </div>
                                     </Col>
                                 </Row>
