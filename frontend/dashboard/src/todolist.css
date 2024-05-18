@@ -1,74 +1,92 @@
+/* todolist.css */
 
-.to-do-list{
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-    margin-top: 30px;
-    border: 1px solid transparent;
-    width: 50%;
-    margin-right: 25%;
-  }
-  h1{
-    font-size: 4rem;
-    color: white;
-  }
-  button{
-    font-size: 1.7rem;
-    font-weight: bold;
-    padding: 10px 20px;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.5s ease;
-  }
-  .add-button{
-    background-color: hsl(125, 47%, 54%);
-  }
-  .add-button:hover{
-    background-color: hsl(125, 47%, 44%);
-  }
-  .delete-button{
-    background-color: hsl(10, 90%, 50%);
-  }
-  .delete-button:hover{
-    background-color: hsl(125, 47%, 40%);
-  }
-  .move-button{
-    background-color: hsl(207, 90%, 64%);
-  }
-  .move-button:hover{
-    background-color: hsl(207, 90%, 54%);
-  }
-  
+/* Wrap all custom styles inside a unique class for isolation */
+.my-todo-plugin .student-dashboard-container {
+  background-color: #1f4e79;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-input[type="text"]{
-    font-size: 1.6rem;
-    padding: 10px;
-    border:2px solid hsla(0, 0%, 80%, 0.5);
-    border-radius:5px;
-    color: hsla(0, 0%, 0%, 0.5);
-    margin: 15px;
-  }
-  ol{
-    padding: 0;
-  }
-  li{
-    font-size: 2rem;
-    font-weight: bold;
-    padding: 15px;
-    background-color: hsl(0, 0%, 97%);
-    margin-bottom: 10px;
-    border: 3px solid hsla(0, 0%, 85%, 0.75);
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-  }
-  .text{
-    flex: 1;
-  }
-  .delete-button, .move-button{
-    padding: 8px, 12px;
-    font-size: 1.4rem;
-    margin-left: 10px;
-  }
-  
+.my-todo-plugin .to-do-list-content {
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  margin-top: 30px;
+  border: 1px solid transparent;
+  width: 50%;
+  margin: auto;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.my-todo-plugin h1 {
+  font-size: 4rem;
+  color: white;
+}
+
+.my-todo-plugin .todo-add-button {
+  background-color: hsl(125, 47%, 54%);
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 8px 12px;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.5s ease;
+  margin-left: 5px;
+}
+
+.my-todo-plugin .todo-add-button:hover {
+  background-color: hsl(125, 47%, 44%);
+}
+
+.my-todo-plugin .todo-delete-button {
+  background-color: hsl(10, 90%, 50%);
+}
+
+.my-todo-plugin .todo-delete-button:hover {
+  background-color: hsl(10, 90%, 40%);
+}
+
+.my-todo-plugin .todo-move-button {
+  background-color: hsl(207, 90%, 64%);
+}
+
+.my-todo-plugin .todo-move-button:hover {
+  background-color: hsl(207, 90%, 54%);
+}
+
+.my-todo-plugin input[type="text"] {
+  font-size: 1.6rem;
+  padding: 10px;
+  border: 2px solid hsla(0, 0%, 80%, 0.5);
+  border-radius: 5px;
+  color: hsla(0, 0%, 0%, 0.5);
+  margin: 15px;
+}
+
+.my-todo-plugin ol {
+  padding: 0;
+}
+
+.my-todo-plugin li {
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 15px;
+  background-color: hsl(0, 0%, 97%);
+  margin-bottom: 10px;
+  border: 3px solid hsla(0, 0%, 85%, 0.75);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.my-todo-plugin .text {
+  flex: 1;
+}
+

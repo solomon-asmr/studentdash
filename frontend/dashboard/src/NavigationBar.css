@@ -1,31 +1,77 @@
-.navbar {
-    background-color: #1f4e79; /* Clear the default background */
-  }
-  
-  body, html {      
-    direction: rtl;
-    background-color: #1f4e79; /* Background color of the space between logo and info */
-    display: 'flex';
-    justify-content: center;
+/* Scoped styles specifically for the student dashboard plugin */
+.student-dashboard-navbar {
+    background-color: #1f4e79;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
+.navbar-brand {
+    position: relative;
+    right: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logo-image {
+    border-radius: 10px;
+}
+
+.specialButton {
+    position: absolute;
+    right: 85%; /* Align to the left side of the Navbar.Brand */
+    white-space: nowrap;
+    transform: translateX(10%);
+    background-color: rgb(255, 192, 0);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    max-width: 100vw; /* Maximum width can be 100% of the viewport width */
+    overflow: hidden; /* Prevents overflow */
+    text-overflow: ellipsis;
+    z-index: 4;
+    padding: 5px 10px;
+}
+
+.navbar-toggle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: rgb(90, 228, 198);
+}
+
+.student-nav-items {
+    position: absolute;
+    left: 80px;
+    border: 1px solid transparent;
+    padding: 40px;
+    border-radius: 10px;
+    background-color: rgb(90, 228, 198);
+    z-index: 2;
+}
+
+.logo-image2 {
+    position: absolute;
+    left: 0;
+    top: 60%;
+    transform: translateY(-50%);
+    z-index: 2;
+    border-radius: 9px;
+}
+
 @media (max-width: 426px) {
     .specialButton {
-        font-size: 12px; 
+        font-size: 12px;
     }
-    .logo-image{
+    .logo-image {
         width: 110px;
     }
-    .logo-image2{
+    .logo-image2 {
         margin-bottom: 0;
         height: 30px;
         width: 60px;
         top: 100px;
     }
-    *{
+    * {
         font-size: small;
     }
-
 }
-  
-
- 

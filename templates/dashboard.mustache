@@ -15,25 +15,26 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template plugintype_pluginname/template_name
+    @template local_studentdash/dashboard
 
-    Template purpose and description.
-
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * none
+    Custom student dashboard template for displaying relevant data.
 
     Context variables required for this template:
-    * none
+    * name - The first name of the user (string).
 
     Example context (json):
     {
+        "name": "John"
     }
 }}
 
-<!--<p>Hello, {{name}} </p>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="/local/studentdash/frontend/dashboard/build/static/css/main.01942441.css">
+</head>
 <body>
 
 <!--UNCOMMENT FOR PRODUCTION-->
