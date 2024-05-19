@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Card, Container, Row, Col, Table, Image} from 'react-bootstrap';
 import {useParams, Link} from 'react-router-dom';
 import './CourseDetails.css'; // Make sure to adjust the CSS file for Bootstrap compatibility
-import NavigationBar from './NavigationBar.jsx';
+
 
 
 function CourseDetails({studentInfo}) {
@@ -35,7 +35,7 @@ function CourseDetails({studentInfo}) {
             maxWidth: '1200px',
         }}>
 
-            <NavigationBar studentInfo={studentInfo}/>
+            {/*<NavigationBar studentInfo={studentInfo}/>*/}
 
             <Container fluid style={
                 {
@@ -52,7 +52,10 @@ function CourseDetails({studentInfo}) {
                         <Image src="../../frontend/dashboard/build/collapse_content.png" alt="collapse content"/>
                     </Link>
 
-                    <h3>{courseName}</h3>
+                    <h2 style={{
+                            color:"black",
+                            fontWeight:"bolder",}}
+                        >{courseName}</h2>
 
                     <Link to="/back">
                         <Image className="keyboard_backspace" src="../../frontend/dashboard/build/keyboard_backspace.png" width="50"

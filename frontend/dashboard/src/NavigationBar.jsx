@@ -11,7 +11,7 @@ function NavigationBar() {
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
             <Container fluid>
                 <Navbar.Brand href="#" className="navbar-brand">
-                    <img src={imgUrl} alt="Logo" width={200} className="logo-image"/>
+                    <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
                     <Navbar.Text className="specialButton">
                         הי הלן, ברוך שובך!
                     </Navbar.Text>
@@ -37,7 +37,7 @@ function NavigationBar() {
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
-                <img src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
+                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
             </Container>
         </Navbar>
     );
