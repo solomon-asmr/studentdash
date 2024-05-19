@@ -28,7 +28,7 @@ $PAGE->set_context(context_system::instance());
 
 
 $PAGE->set_url('/local/studentdash/dashboard.php');
-$PAGE->set_heading('Student Dashboard Custom Page');
+$PAGE->set_heading('');
 $PAGE->set_title('StudentDash');
 
 $data = (object)[
