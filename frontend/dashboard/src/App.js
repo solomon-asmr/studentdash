@@ -1,8 +1,9 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import SubjectCard from './SubjectCard';
 import CourseDetails from './CourseDetails';
+import NavigationBar from "./NavigationBar";
 import ToDoList from './ToDoList';
 import {
     BrowserRouter as Router,
@@ -31,9 +32,11 @@ function App() {
     }, []);
 
     return (
-        <Container>
+        <Container style={{backgroundColor: '#1f4e79'}}>
             <Router basename={'/local/studentdash/dashboard.php'}>
+                <NavigationBar studentInfo={studentInfo}/>
                     <Routes>
+                        {/*<Route path="/" element={<NavigationBar studentInfo={studentInfo}/>}/>*/}
                         <Route path="/" element={isLoading ? <Spinner animation="border"/> : studentInfo ?
                             <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
                         <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo} />} />

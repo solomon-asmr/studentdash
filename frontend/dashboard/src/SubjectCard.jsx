@@ -15,13 +15,17 @@ function CourseCard({course}) {
             <Card style={{border: '1px solid transparent', borderRadius: 20}}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to={`/details/${course.id}`}>
-                        <Image src="/expand_content.svg" alt="expand content" width="30"/>
+                        <Image src="frontend/dashboard/build/expand_content.svg" alt="expand content" width="30"/>
                     </Link>
-                    <h2>{course.fullname}</h2>
+                    <h2 style={{
+                        color:"black",
+                        fontWeight:"bolder",
+
+                    }}>{course.fullname}</h2>
                     <a href={course.url}>
                         <Image
                             className="keyboard_backspace"
-                            src="/keyboard_backspace.png"
+                            src="frontend/dashboard/build/keyboard_backspace.png"
                             alt=""
                             width={50}
                             height={30}
@@ -72,7 +76,7 @@ function SubjectCard({studentInfo}) {
 
     return (
         <Container fluid style={{padding: '20px', maxWidth: '1200px'}}>
-            <NavigationBar studentInfo={studentInfo}/>
+            {/*<NavigationBar studentInfo={studentInfo}/>*/}
             {loading ? (
                 <div>Loading...</div>
             ) : (

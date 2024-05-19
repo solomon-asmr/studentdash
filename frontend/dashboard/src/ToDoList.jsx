@@ -1,7 +1,6 @@
 // ToDoList.jsx
 import React, { useState } from 'react';
 import { Container, Button, InputGroup, FormControl, ListGroup } from 'react-bootstrap';
-import NavigationBar from "./NavigationBar";
 import './todolist.css'; // Make sure to import your CSS file
 
 function ToDoList() {
@@ -44,7 +43,7 @@ function ToDoList() {
     return (
         <div className="my-todo-plugin"> {/* Apply the unique class to the outermost div */}
             <Container fluid className="student-dashboard-container" style={{ backgroundColor: '#1f4e79' }}>
-                <NavigationBar/>
+
                 <Container className="to-do-list-content">
                     <h1>הוספת מסימות אישית</h1>
                     <InputGroup className="mb-3">
