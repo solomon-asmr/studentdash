@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {Card, Row, Col, Container, Image} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-import NavigationBar from './NavigationBar';
 import './StudentCard.css';
 
 function CourseCard({course}) {
@@ -15,13 +14,17 @@ function CourseCard({course}) {
             <Card style={{border: '1px solid transparent', borderRadius: 20}}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to={`/details/${course.id}`}>
-                        <Image src="/expand_content.svg" alt="expand content" width="30"/>
+                        <Image src="/local/studentdash/frontend/dashboard/build/expand_content.svg" alt="expand content" width="30"/>
                     </Link>
-                    <h2>{course.fullname}</h2>
+                    <h2 style={{
+                        color:"black",
+                        fontWeight:"bolder",
+
+                    }}>{course.fullname}</h2>
                     <a href={course.url}>
                         <Image
                             className="keyboard_backspace"
-                            src="/keyboard_backspace.png"
+                            src="/local/studentdash/frontend/dashboard/build/keyboard_backspace.png"
                             alt=""
                             width={50}
                             height={30}
@@ -47,7 +50,7 @@ function CourseCard({course}) {
                         <Col className="d-flex justify-content-between card-column">
                             <div>
                                 <span>מרצה: </span>
-                                <Image src="frontend/dashboard/build/contact_mail.png" alt=""/>
+                                <Image src="/local/studentdash/frontend/dashboard/build/contact_mail.png" alt=""/>
                             </div>
                             <div>
                                 <span>{course.lecturer || ' ד"ר יועש חסידים '}</span>
@@ -72,7 +75,7 @@ function SubjectCard({studentInfo}) {
 
     return (
         <Container fluid style={{padding: '20px', maxWidth: '1200px'}}>
-            <NavigationBar studentInfo={studentInfo}/>
+            {/*<NavigationBar studentInfo={studentInfo}/>*/}
             {loading ? (
                 <div>Loading...</div>
             ) : (

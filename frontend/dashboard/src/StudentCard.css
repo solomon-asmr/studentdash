@@ -1,3 +1,21 @@
+/* StudentCard.css */
+
+.student-dashboard-container {
+    margin: 0 auto;
+    padding: 20px;
+    max-width: 1200px;
+}
+
+.subject-card {
+    border: 1px solid transparent;
+    border-radius: 20px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0;
+    padding: 10px;
+    color: white;
+}
 
 .card-column {
     border: 1px solid transparent;
@@ -8,10 +26,21 @@
     gap: 10px;
 
 }
-.keyboard_backspace{
+
+.keyboard_backspace {
     background-color: rgb(90, 228, 198);
     border-radius: 20px;
-    
-    
 }
 
+@media (max-width: 768px) {
+    .student-dashboard-container {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .card-column {
+        margin: 3px;
+        padding: 8px;
+        font-size: small;
+    }
+}
