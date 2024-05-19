@@ -41,8 +41,6 @@ function CourseDetails({studentInfo}) {
                 {
                     backgroundColor: 'white',
                     borderRadius: '10px',
-                    zIndex: 2,
-                    marginTop: '50px',
                     position: "relative"
                 }
             }>
