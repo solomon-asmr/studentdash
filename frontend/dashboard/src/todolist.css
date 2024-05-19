@@ -1,14 +1,6 @@
 /* todolist.css */
 
 /* Wrap all custom styles inside a unique class for isolation */
-.my-todo-plugin .student-dashboard-container {
-  background-color: #1f4e79;
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
 .my-todo-plugin .to-do-list-content {
   font-family: Arial, Helvetica, sans-serif;
@@ -29,16 +21,16 @@
 }
 
 .my-todo-plugin .todo-add-button {
-  background-color: hsl(125, 47%, 54%);
+  /*background-color: hsl(125, 47%, 54%);*/
   font-size: 1.4rem;
   font-weight: bold;
   padding: 8px 12px;
-  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.5s ease;
-  margin-left: 5px;
+  margin: 5px;
+  color: mediumvioletred;
 }
 
 .my-todo-plugin .todo-add-button:hover {
@@ -46,7 +38,9 @@
 }
 
 .my-todo-plugin .todo-delete-button {
-  background-color: hsl(10, 90%, 50%);
+  /*background-color: hsl(10, 90%, 50%);*/
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .my-todo-plugin .todo-delete-button:hover {
@@ -54,7 +48,9 @@
 }
 
 .my-todo-plugin .todo-move-button {
-  background-color: hsl(207, 90%, 64%);
+ /* background-color: hsl(207, 90%, 64%);*/
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .my-todo-plugin .todo-move-button:hover {
@@ -88,5 +84,10 @@
 
 .my-todo-plugin .text {
   flex: 1;
+}
+@media (max-width: 768px) {
+  .my-todo-plugin .to-do-list-content{
+    width: 90%;
+  }
 }
 
