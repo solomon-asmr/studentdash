@@ -113,6 +113,7 @@ function fetch_course_tasks($userId, $courseId)
 
     $assignmentsSQL = "
         SELECT
+            cm.id AS task_id,
             'Assignment' AS task_type,
             a.name AS task_name,
             DATE(FROM_UNIXTIME(a.duedate)) AS due_date,
@@ -150,6 +151,7 @@ function fetch_course_tasks($userId, $courseId)
 
     $quizzesSQL = "
         SELECT
+            cm.id AS task_id,
             'Quiz' AS task_type,
             q.name AS task_name,
             DATE(FROM_UNIXTIME(q.timeclose)) AS due_date,
@@ -195,9 +197,11 @@ function fetch_course_tasks($userId, $courseId)
 
     $tasks = array();
     foreach ($assignments as $assignment) {
+        $assignment->url = (new moodle_url('/mod/assign/view.php', array('id' => $assignment->task_id)))->out(false);
         $tasks[] = (array)$assignment;
     }
     foreach ($quizzes as $quiz) {
+        $quiz->url = (new moodle_url('/mod/quiz/view.php', array('id' => $quiz->task_id)))->out(false);
         $tasks[] = (array)$quiz;
     }
 

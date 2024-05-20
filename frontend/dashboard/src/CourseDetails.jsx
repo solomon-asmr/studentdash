@@ -4,7 +4,6 @@ import {useParams, Link} from 'react-router-dom';
 import './CourseDetails.css'; // Make sure to adjust the CSS file for Bootstrap compatibility
 
 
-
 function CourseDetails({studentInfo}) {
     const {courseId} = useParams();
     const [tasks, setTasks] = useState([]);
@@ -51,9 +50,10 @@ function CourseDetails({studentInfo}) {
                     </Link>
 
                     <h2 style={{
-                            color:"black",
-                            fontWeight:"bolder",}}
-                        >{courseName}</h2>
+                        color: "black",
+                        fontWeight: "bolder",
+                    }}
+                    >{courseName}</h2>
 
                     <Link to="/back">
                         <Image className="keyboard_backspace" src="../../frontend/dashboard/build/keyboard_backspace.png" width="50"
@@ -131,7 +131,9 @@ function CourseDetails({studentInfo}) {
                                     <td>{task.due_date}</td>
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
-                                    <td><Image src="../../frontend/dashboard/build/library_books.svg" alt=""/></td>
+                                    <td><a href={task.url}><Image src="../../frontend/dashboard/build/library_books.svg"
+                                                                  alt="לעמוד המטלה"/></a>
+                                    </td>
                                     <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt=""/></td>
                                     <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/></td>
                                     <td><Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/></td>
