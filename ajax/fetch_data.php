@@ -201,6 +201,7 @@ function fetch_course_tasks($userId, $courseId)
         $tasks[] = (array)$assignment;
     }
     foreach ($quizzes as $quiz) {
+        $quiz->url = (new moodle_url('/mod/quiz/view.php', array('id' => $quiz->task_id)))->out(false);
         $tasks[] = (array)$quiz;
     }
 
