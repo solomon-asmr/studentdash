@@ -273,6 +273,9 @@ function fetch_course_exams($courseId)
             q.course = :courseid
     ";
     $exams = $DB->get_records_sql($examSQL, array('courseid' => $courseId));
+
+    foreach ($exams as $exam) $exam->exam_location = "Sapir College";
+
     return array_values($exams); // Ensure the result is returned as an array
 }
 
@@ -288,4 +291,5 @@ function handle_invalid_request()
 {
     http_response_code(405); // Method Not Allowed
 }
+
 ?>

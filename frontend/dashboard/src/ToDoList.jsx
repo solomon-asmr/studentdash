@@ -1,6 +1,6 @@
 // ToDoList.jsx
-import React, { useState } from 'react';
-import { Container, Button, InputGroup, FormControl, ListGroup } from 'react-bootstrap';
+import React, {useState} from 'react';
+import {Container, Button, InputGroup, FormControl, ListGroup} from 'react-bootstrap';
 import './todolist.css'; // Make sure to import your CSS file
 
 function ToDoList() {
@@ -45,10 +45,10 @@ function ToDoList() {
             <Container fluid className="student-dashboard-container">
 
                 <Container className="to-do-list-content">
-                    <h3 style={{color:"black", fontWeight:"bolder"}}>הוספת מסימות אישית</h3>
+                    <h3 style={{color: "black", fontWeight: "bolder"}}>הוספת משימות אישית</h3>
                     <InputGroup className="mb-3">
                         <FormControl
-                            placeholder="תכניס מסימות"
+                            placeholder="הכנס משימה"
                             value={newTask}
                             onChange={handleInputChange}
                         />
