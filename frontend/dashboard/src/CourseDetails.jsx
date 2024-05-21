@@ -43,15 +43,14 @@ function CourseDetails({studentInfo}) {
         setShowModal(false);
         setModalData(null);
     };
-    const handleAddToCalendar = () => {
+    const handleAddToCalendar = (title, start, end) => {
         const eventTitle = encodeURIComponent('Your Event Title');
-        const eventLocation = encodeURIComponent('Event Location');
         const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
         const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
 
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}&location=${eventLocation}`;
+        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}`;
 
-        window.open(calendarUrl, '_blank');
+        window.location.href = calendarUrl;
     };
 
     if (isLoading) {
@@ -63,7 +62,7 @@ function CourseDetails({studentInfo}) {
             padding: '20px',
             maxWidth: '1200px',
         }}>
-            
+
             <Container fluid style={
                 {
                     backgroundColor: 'white',
@@ -167,7 +166,7 @@ function CourseDetails({studentInfo}) {
                                     <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt=""/></td>
                                     <td>
                                         <Button style={{border: 'none'}} variant="light"
-                                                onClick={() => handleAddToCalendar(task)}>
+                                                onClick={() => handleAddToCalendar()}>
                                             <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
                                         </Button>
                                         {/* todo integrate with user calendar */}
