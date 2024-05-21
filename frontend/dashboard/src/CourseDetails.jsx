@@ -45,6 +45,17 @@ function CourseDetails({studentInfo}) {
         setModalData(null);
     };
 
+    const handleAddToCalendar = () => {
+        const eventTitle = encodeURIComponent('Your Event Title');
+        const eventLocation = encodeURIComponent('Event Location');
+        const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+        const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+
+        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}&location=${eventLocation}`;
+
+        window.open(calendarUrl, '_blank');
+    };
+
     if (isLoading) {
         return <div><h2>Loading...</h2></div>;
     }
@@ -153,17 +164,21 @@ function CourseDetails({studentInfo}) {
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
                                     <td>
-                                        <a href={task.url}>
+                                        <Button href={task.url} style={{border: 'none'}} variant="light">
                                             <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"/>
-                                        </a>
+                                        </Button>
                                     </td>
                                     <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt=""/></td>
-                                    <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
-                                        {/* integrate with user calendar */}
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleAddToCalendar(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
+                                        </Button>
+                                        {/* todo integrate with user calendar */}
                                     </td>
                                     <td>
-                                        {/* display assignment statistics */}
-                                        <Button variant="primary" onClick={() => handleShowModal(task)}>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowModal(task)}>
                                             <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
                                         </Button>
                                     </td>
