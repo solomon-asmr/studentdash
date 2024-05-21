@@ -131,12 +131,18 @@ function CourseDetails({studentInfo}) {
                                     <td>{task.due_date}</td>
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
-                                    <td><a href={task.url}><Image src="../../frontend/dashboard/build/library_books.svg"
-                                                                  alt="לעמוד המטלה"/></a>
+                                    <td>
+                                        <a href={task.url}>
+                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"/>
+                                        </a>
                                     </td>
                                     <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt=""/></td>
-                                    <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/></td>
-                                    <td><Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/></td>
+                                    <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
+                                        {/* integrate with user calendar */}
+                                    </td>
+                                    <td><Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
+                                        {/* display assignment statistics */}
+                                    </td>
                                 </tr>
                             ))}
                         </Table>
