@@ -39,12 +39,10 @@ function CourseDetails({studentInfo}) {
         });
         setShowModal(true);
     };
-
     const handleCloseModal = () => {
         setShowModal(false);
         setModalData(null);
     };
-
     const handleAddToCalendar = () => {
         const eventTitle = encodeURIComponent('Your Event Title');
         const eventLocation = encodeURIComponent('Event Location');
@@ -65,9 +63,7 @@ function CourseDetails({studentInfo}) {
             padding: '20px',
             maxWidth: '1200px',
         }}>
-
-            {/*<NavigationBar studentInfo={studentInfo}/>*/}
-
+            
             <Container fluid style={
                 {
                     backgroundColor: 'white',
