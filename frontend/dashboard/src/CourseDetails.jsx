@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Card, Container, Row, Col, Table, Image} from 'react-bootstrap';
+import {Card, Container, Row, Col, Table, Image, Button} from 'react-bootstrap';
 import {useParams, Link} from 'react-router-dom';
-import './CourseDetails.css'; // Make sure to adjust the CSS file for Bootstrap compatibility
+import './CourseDetails.css';
+import ChartModal from "./ChartModal"; // Make sure to adjust the CSS file for Bootstrap compatibility
 
 
 function CourseDetails({studentInfo}) {
@@ -11,6 +12,10 @@ function CourseDetails({studentInfo}) {
     const [exams, setExams] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+
+    const [modalData, setModalData] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
     useEffect(() => {
         if (studentInfo && courseId) {
             const course = studentInfo.courses.find(c => c.id === courseId);
@@ -23,6 +28,22 @@ function CourseDetails({studentInfo}) {
             setIsLoading(false);
         }
     }, [studentInfo, courseId]);
+
+    const handleShowModal = (assignment) => {
+        const submitted = assignment.submission_percentage;
+        const notSubmitted = 100 - submitted;
+        setModalData({
+            assignmentname: assignment.assignmentname,
+            submitted,
+            notSubmitted,
+        });
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setModalData(null);
+    };
 
     if (isLoading) {
         return <div><h2>Loading...</h2></div>;
@@ -140,8 +161,11 @@ function CourseDetails({studentInfo}) {
                                     <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
                                         {/* integrate with user calendar */}
                                     </td>
-                                    <td><Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
+                                    <td>
                                         {/* display assignment statistics */}
+                                        <Button variant="primary" onClick={() => handleShowModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -238,6 +262,7 @@ function CourseDetails({studentInfo}) {
                     </Col>
                 </Row>
             </Container>
+            <ChartModal show={showModal} onHide={handleCloseModal} data={modalData}/>
         </Container>
     );
 }
