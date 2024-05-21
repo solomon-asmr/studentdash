@@ -6,6 +6,9 @@ require_once($CFG->dirroot . '/calendar/lib.php'); // for fetching calendar even
 // Authenticate user (if necessary)
 require_login();
 
+global $DB, $USER;
+
+
 // Handle the AJAX request
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
@@ -111,99 +114,61 @@ function fetch_course_tasks($userId, $courseId)
 {
     global $DB;
 
-    $assignmentsSQL = "
-        SELECT
-            cm.id AS task_id,
-            'Assignment' AS task_type,
-            a.name AS task_name,
-            DATE(FROM_UNIXTIME(a.duedate)) AS due_date,
-            CASE
-                WHEN s.id IS NOT NULL THEN 'Submitted'
-                ELSE 'Not Submitted'
-            END AS task_status,
-            CASE
-                WHEN s.id IS NOT NULL THEN FROM_UNIXTIME(s.timemodified)
-                ELSE NULL
-            END AS modify_date
-        FROM
-            {user} u
-        JOIN
-            {user_enrolments} ue ON ue.userid = u.id
-        JOIN
-            {enrol} e ON e.id = ue.enrolid
-        JOIN
-            {course} c ON c.id = e.courseid
-        JOIN
-            {context} ctx ON ctx.contextlevel = 50 AND ctx.instanceid = c.id
-        JOIN
-            {modules} m ON m.name = 'assign'
-        JOIN
-            {course_modules} cm ON cm.module = m.id AND cm.course = c.id
-        JOIN
-            {assign} a ON cm.instance = a.id
-        LEFT JOIN
-            {assign_submission} s ON s.assignment = a.id AND s.userid = u.id
-        WHERE
-            u.id = :userid
-            AND c.id = :courseid
-    ";
-    $assignments = $DB->get_recordset_sql($assignmentsSQL, array('userid' => $userId, 'courseid' => $courseId));
-
-    $quizzesSQL = "
-        SELECT
-            cm.id AS task_id,
-            'Quiz' AS task_type,
-            q.name AS task_name,
-            DATE(FROM_UNIXTIME(q.timeclose)) AS due_date,
-            CASE
-                WHEN qa.id IS NOT NULL THEN 'Submitted'
-                ELSE 'Not Submitted'
-            END AS task_status,
-            CASE
-                WHEN qa.timefinish IS NOT NULL THEN FROM_UNIXTIME(qa.timefinish)
-                ELSE NULL
-            END AS modify_date
-        FROM
-            {user} u
-        JOIN
-            {user_enrolments} ue ON ue.userid = u.id
-        JOIN
-            {enrol} e ON e.id = ue.enrolid
-        JOIN
-            {course} c ON c.id = e.courseid
-        JOIN
-            {context} ctx ON ctx.contextlevel = 50 AND ctx.instanceid = c.id
-        JOIN
-            {modules} m ON m.name = 'quiz'
-        JOIN
-            {course_modules} cm ON cm.module = m.id AND cm.course = c.id
-        JOIN
-            {quiz} q ON cm.instance = q.id
-        LEFT JOIN
-            (
-                SELECT qa.id, qa.timefinish, qa.userid, qa.quiz
-                FROM {quiz_attempts} qa
-                JOIN (
-                    SELECT MAX(id) AS id
-                    FROM {quiz_attempts}
-                    GROUP BY quiz, userid
-                ) maxqa ON maxqa.id = qa.id
-            ) qa ON qa.quiz = q.id AND qa.userid = u.id
-        WHERE
-            u.id = :userid
-            AND c.id = :courseid
-    ";
-    $quizzes = $DB->get_recordset_sql($quizzesSQL, array('userid' => $userId, 'courseid' => $courseId));
-
     $tasks = array();
+
+    $assignments = $DB->get_records('assign', ['course' => $courseId]);
+
     foreach ($assignments as $assignment) {
-        $assignment->url = (new moodle_url('/mod/assign/view.php', array('id' => $assignment->task_id)))->out(false);
-        $tasks[] = (array)$assignment;
+        $context = context_course::instance($courseId);
+        $cm = get_coursemodule_from_instance('assign', $assignment->id, $courseId);
+
+        $submissions = $DB->get_records('assign_submission', ['assignment' => $assignment->id, 'status' => 'submitted']);
+        $students = get_enrolled_users($context, 'mod/assign:submit');
+        $submission_percentage = count($submissions) / count($students) * 100;
+
+        $assignment->$submission_percentage = $submission_percentage;
+
+        $user_submission = $DB->get_record('assign_submission', ['assignment' => $assignment->id, 'userid' => $userId]);
+
+        $has_submitted = empty($user_submission) ? "Not Submitted" : "Submitted";
+
+
+        $tasks[] = [
+            'task_id' => $assignment->id,
+            'task_type' => 'Assignment',
+            'task_name' => $assignment->name,
+            'due_date' => gmdate("d-m-Y H:i", $assignment->duedate),
+            'task_status' => $has_submitted,
+            'modify_date' => !empty($user_submission) ? gmdate("d-m-Y", $user_submission->timemodified) : null,
+            'submission_percentage' => $submission_percentage,
+            'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false)
+        ];
     }
+    $quizzes = $DB->get_records('quiz', ['course' => $courseId]);
+
     foreach ($quizzes as $quiz) {
-        $quiz->url = (new moodle_url('/mod/quiz/view.php', array('id' => $quiz->task_id)))->out(false);
-        $tasks[] = (array)$quiz;
+        $context = context_course::instance($courseId);
+        $cm = get_coursemodule_from_instance('quiz', $quiz->id, $courseId);
+
+        $attempts = $DB->get_records('quiz_attempts', ['quiz' => $quiz->id, 'state' => 'finished']);
+        $students = get_enrolled_users($context, 'mod/quiz:attempt');
+        $submission_percentage = count($attempts) / count($students) * 100;
+
+        $user_attempt = $DB->get_record('quiz_attempts', ['quiz' => $quiz->id, 'userid' => $userId, 'state' => 'finished']);
+        $has_attempted = empty($user_attempt) ? "Not Attempted" : "Attempted";
+
+        $tasks[] = [
+            'task_id' => $quiz->id,
+            'task_type' => 'Quiz',
+            'task_name' => $quiz->name,
+            'due_date' => gmdate("d-m-Y H:i", $quiz->timeclose),
+            'task_status' => $has_attempted,
+            'modify_date' => !empty($user_attempt) ? gmdate("d-m-Y", $user_attempt->timemodified) : null,
+            'submission_percentage' => $submission_percentage,
+            'url' => (new moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out(false)
+        ];
     }
+
 
     return $tasks;
 }
@@ -296,4 +261,4 @@ function handle_invalid_request()
     http_response_code(405); // Method Not Allowed
 }
 
-?>
+

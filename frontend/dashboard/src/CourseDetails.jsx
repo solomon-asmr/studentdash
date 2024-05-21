@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
-import {Card, Container, Row, Col, Table, Image} from 'react-bootstrap';
+import {Card, Container, Row, Col, Table, Image, Button} from 'react-bootstrap';
 import {useParams, Link} from 'react-router-dom';
-import './CourseDetails.css'; // Make sure to adjust the CSS file for Bootstrap compatibility
+import './CourseDetails.css';
+import ChartModal from "./ChartModal"; // Make sure to adjust the CSS file for Bootstrap compatibility
 
 
 function CourseDetails({studentInfo}) {
@@ -11,6 +12,10 @@ function CourseDetails({studentInfo}) {
     const [exams, setExams] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+
+    const [modalData, setModalData] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
     useEffect(() => {
         if (studentInfo && courseId) {
             const course = studentInfo.courses.find(c => c.id === courseId);
@@ -24,6 +29,30 @@ function CourseDetails({studentInfo}) {
         }
     }, [studentInfo, courseId]);
 
+    const handleShowModal = (assignment) => {
+        const submitted = assignment.submission_percentage;
+        const notSubmitted = 100 - submitted;
+        setModalData({
+            assignmentname: assignment.assignmentname,
+            submitted,
+            notSubmitted,
+        });
+        setShowModal(true);
+    };
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setModalData(null);
+    };
+    const handleAddToCalendar = (title, start, end) => {
+        const eventTitle = encodeURIComponent('Your Event Title');
+        const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+        const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+
+        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}`;
+
+        window.location.href = calendarUrl;
+    };
+
     if (isLoading) {
         return <div><h2>Loading...</h2></div>;
     }
@@ -33,8 +62,6 @@ function CourseDetails({studentInfo}) {
             padding: '20px',
             maxWidth: '1200px',
         }}>
-
-            {/*<NavigationBar studentInfo={studentInfo}/>*/}
 
             <Container fluid style={
                 {
@@ -132,16 +159,23 @@ function CourseDetails({studentInfo}) {
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
                                     <td>
-                                        <a href={task.url}>
+                                        <Button href={task.url} style={{border: 'none'}} variant="light">
                                             <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"/>
-                                        </a>
+                                        </Button>
                                     </td>
                                     <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt=""/></td>
-                                    <td><Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
-                                        {/* integrate with user calendar */}
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleAddToCalendar()}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt=""/>
+                                        </Button>
+                                        {/* todo integrate with user calendar */}
                                     </td>
-                                    <td><Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
-                                        {/* display assignment statistics */}
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt=""/>
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -238,6 +272,7 @@ function CourseDetails({studentInfo}) {
                     </Col>
                 </Row>
             </Container>
+            <ChartModal show={showModal} onHide={handleCloseModal} data={modalData}/>
         </Container>
     );
 }

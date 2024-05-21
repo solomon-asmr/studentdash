@@ -36,7 +36,6 @@ function App() {
             <Router basename={'/local/studentdash/dashboard.php'}>
                 <NavigationBar studentInfo={studentInfo ? studentInfo : <div>No data available</div>}/>
                 <Routes>
-                    {/*<Route path="/" element={<NavigationBar studentInfo={studentInfo}/>}/>*/}
                     <Route path="/" element={isLoading ? <Spinner animation="border"/> : studentInfo ?
                         <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
                     <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo}/>}/>
