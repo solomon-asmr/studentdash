@@ -51,7 +51,7 @@ function CourseCard({ course, isVisible }) {
                                 <Image src="/local/studentdash/frontend/dashboard/build/contact_mail.png" alt="" />
                             </div>
                             <div>
-                                <span>{course.lecturer || ' ד"ר יועש חסידים '}</span>
+                                <span><p>{course.lecturer || ' ד"ר יועש חסידים '}</p></span>
                                 <span>{course.lectureremail || 'yoash@sapir.edu.co.il'} </span>
                             </div>
                         </Col>
