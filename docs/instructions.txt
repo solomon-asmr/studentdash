@@ -1,0 +1,31 @@
+1,FIRST DOWNLOAD MOODLE using this link https://download.moodle.org/download.php/windows/MoodleWindowsInstaller-latest-403.zip
+or you can choose other version 
+https://download.moodle.org/windows/
+
+2, download sqlyog 
+https://webyog.com/product/sqlyog/
+
+2, extract the moodles zip file,
+
+3, download the plugin using this link -> https://gitlab.com/orbarcalifa/studentdash.git
+
+4 , replace the file name primary in this dirctory (MoodleWindowsInstaller-latest-403\server\moodle\lib\classes\navigation\output) inside your moodle folder with the primary.txt found in the studentdash plugin folder named additional  to fix the default navigation bar 
+
+5, move  studentdash plugin folder  to this directory MoodleWindowsInstaller-latest-403\server\moodle\local
+
+6, run start moodle.exe if you get port 80 related error -> open cmd in admin mode and type NET stop http ,if you get sql related error open task manger and search for mysql or sql and end it 
+to check if both the appache and mysql are running properly open xampp control inside the server folder of moodle 
+
+7, open your browser and type localhost then press next for lang ,press next for path ,press next for database ,then wait
+
+8, open sqlyog and on the left side select moodle database and right click -> more doesbase options -> drop  then right click root@localhost  -> excute sql script -> browth to studentdash plugin folder -> additional files -> moodle.sql excute ,then refrash and go to your browser 
+and continue with the process , 
+after finishing up you will be asked for the password for the db which admin ,user name also admin
+
+9, go to MoodleWindowsInstaller-latest-404\server\moodle\local\studentdash\frontend\dashboard in your terminal and npm install 
+
+10,copy the absolut path of dashboard.mustach that is found in "MoodleWindowsInstaller-latest-404\server\moodle\local\studentdash\template " and then go to this file  (MoodleWindowsInstaller-latest-404\server\moodle\local\studentdash\frontend\dashboard\updateHash.js)""  and replace the 6th line contain the directory for the mustach file
+
+11, npm run build then npm start , if it doesnt work properly , try purge all caches thingy at the botttom left corner of the moodle in the browser and also try restarting the stop moodle.ext and start moodle.ext
+
+
