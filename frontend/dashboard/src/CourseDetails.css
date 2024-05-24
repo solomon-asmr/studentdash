@@ -1,4 +1,29 @@
-  .add-activity{
+.hover-effect-image {
+  transition: transform 0.3s ease;
+}
+
+.hover-effect-image:hover {
+  transform: scale(1.2);
+}
+.courseDetailContainer{
+  font-family: Georgia, Times, "Times New Roman", serif;
+  font-size: 1.15em;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.table-row {
+  animation: slideIn 0.5s ease forwards;
+}
+.add-activity{
     background-color:  rgb(255, 192, 0);
     border: 1px solid transparent;
     text-decoration: none;
@@ -32,6 +57,11 @@
         flex: 0 0 100%;
         max-width: 100%;
     }
+}
+@media (max-width: 700px) {
+  .activityAdderForm{
+    width: 100%;
+  }
 }
 
 .course-details-content {

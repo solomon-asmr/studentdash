@@ -8,10 +8,10 @@ require_login();
 
 global $DB, $USER;
 
+// Set the appropriate headers to indicate JSON response and allow cross-origin requests
+set_json_headers();
 
-// Handle the AJAX request
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
     // Fetch user details
     $user = $DB->get_record('user', array('id' => $USER->id));
 
@@ -20,6 +20,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Calculate average grade for the user
     $averageGrade = calculate_average_grade($grades);
+
+    // Fetch personal activities for the user
+    $courseId = $_GET['courseId'];
+    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]);
 
     // Initialize data array
     $data = array(
@@ -31,22 +35,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'email' => $user->email,
         'phone' => $user->phone1,
         'average' => $averageGrade,
-        'courses' => fetch_user_courses($USER->id)
+        'courses' => fetch_user_courses($USER->id),
+        'personalActivities' => array_values($personalActivities)
     );
-
-    // Set the appropriate headers to indicate JSON response and allow cross-origin requests
-    set_json_headers();
 
     // Output the response data as JSON
     echo json_encode($data);
 
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    // Validate the input
+    if (empty($input['courseId']) || empty($input['taskName']) || empty($input['dueDate']) || empty($input['modifyDate']) || empty($input['status'])) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input']);
+        exit;
+    }
+
+    $courseId = $input['courseId'];
+    $taskName = $input['taskName'];
+    $dueDate = strtotime($input['dueDate']); // Convert to Unix timestamp
+    $modifyDate = strtotime($input['modifyDate']); // Convert to Unix timestamp
+    $status = $input['status'];
+
+    // Insert the new personal activity into the personal_activities table
+    $task = new stdClass();
+    $task->userid = $USER->id;
+    $task->courseid = $courseId;
+    $task->taskname = $taskName;
+    $task->duedate = $dueDate;
+    $task->modifydate = $modifyDate;
+    $task->status = $status;
+
+    try {
+        $taskId = $DB->insert_record('personal_activities', $task);
+        echo json_encode(['success' => true, 'task_id' => $taskId]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($input['taskId'])) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input']);
+        exit;
+    }
+
+    $taskId = $input['taskId'];
+
+    try {
+        $DB->delete_records('personal_activities', ['id' => $taskId, 'userid' => $USER->id]);
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
 } else {
-    // Handle unsupported request methods (e.g., POST, PUT, DELETE)
-    handle_invalid_request();
+    http_response_code(405); // Method Not Allowed
+    echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
 
-function fetch_user_grades($userId)
-{
+function fetch_user_grades($userId) {
     global $DB;
 
     $gradesSQL = "
@@ -64,8 +111,7 @@ function fetch_user_grades($userId)
     return $DB->get_records_sql($gradesSQL, array('userid' => $userId));
 }
 
-function calculate_average_grade($grades)
-{
+function calculate_average_grade($grades) {
     $totalGrades = 0;
     $count = count($grades);
 
@@ -79,8 +125,7 @@ function calculate_average_grade($grades)
     }
 }
 
-function fetch_user_courses($userId)
-{
+function fetch_user_courses($userId) {
     global $DB;
 
     $courses = enrol_get_all_users_courses($userId);
@@ -91,7 +136,6 @@ function fetch_user_courses($userId)
         $context = context_course::instance($course->id);
         $roles = get_role_users(3, $context);  // Assuming role id 3 for lecturers
         $lecturer = reset($roles);  // Get the first lecturer found
-
 
         $courseData = array(
             'id' => $course->id,
@@ -110,8 +154,7 @@ function fetch_user_courses($userId)
     return $userCourses;
 }
 
-function fetch_course_tasks($userId, $courseId)
-{
+function fetch_course_tasks($userId, $courseId) {
     global $DB;
 
     $tasks = array();
@@ -132,7 +175,6 @@ function fetch_course_tasks($userId, $courseId)
 
         $has_submitted = empty($user_submission) ? "Not Submitted" : "Submitted";
 
-
         $tasks[] = [
             'task_id' => $assignment->id,
             'task_type' => 'Assignment',
@@ -144,6 +186,7 @@ function fetch_course_tasks($userId, $courseId)
             'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false)
         ];
     }
+
     $quizzes = $DB->get_records('quiz', ['course' => $courseId]);
 
     foreach ($quizzes as $quiz) {
@@ -169,12 +212,10 @@ function fetch_course_tasks($userId, $courseId)
         ];
     }
 
-
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId)
-{
+function fetch_course_events($userId, $courseId) {
     global $DB;
 
     $start = strtotime('today');
@@ -195,8 +236,7 @@ function fetch_course_events($userId, $courseId)
     return $courseEvents;
 }
 
-function fetch_course_schedule($courseId)
-{
+function fetch_course_schedule($courseId) {
     global $DB;
 
     // Assuming events in mdl_event table are used to schedule lectures and classes
@@ -224,8 +264,7 @@ function fetch_course_schedule($courseId)
     return array_values($schedule); // Ensure the result is returned as an array
 }
 
-function fetch_course_exams($courseId)
-{
+function fetch_course_exams($courseId) {
     global $DB;
 
     $examSQL = "
@@ -248,17 +287,15 @@ function fetch_course_exams($courseId)
     return array_values($exams); // Ensure the result is returned as an array
 }
 
-function set_json_headers()
-{
+function set_json_headers() {
     header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Methods: GET'); // Adjust if needed for POST, PUT, etc.
+    header('Access-Control-Allow-Methods: GET, POST, DELETE'); // Adjusted to allow DELETE
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 }
 
-function handle_invalid_request()
-{
+function handle_invalid_request() {
     http_response_code(405); // Method Not Allowed
+    echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-
-
+?>

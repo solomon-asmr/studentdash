@@ -1,73 +1,112 @@
-import React from 'react';
-import {Container, Navbar, Nav, Image, NavDropdown} from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
 import './NavigationBar.css';
 
-function NavigationBar({studentInfo}) {
+function NavigationBar({ studentInfo }) {
     const imgUrl = "frontend/dashboard/build/studentDash.png";
     const imgUrl2 = "frontend/dashboard/build/sapir-logo.jpg";
 
+    const [dropdownOpen, setDropdownOpen] = useState({
+        studentDetails: false,
+        department: false,
+        specialization: false,
+        studyYear: false,
+        gradesOrigin: false,
+    });
+
+    useEffect(() => {
+        const handleMouseEnter = (dropdown) => {
+            setDropdownOpen((prevState) => ({
+                ...prevState,
+                [dropdown]: true,
+            }));
+        };
+
+        const handleMouseLeave = (dropdown) => {
+            setDropdownOpen((prevState) => ({
+                ...prevState,
+                [dropdown]: false,
+            }));
+        };
+
+        const dropdowns = document.querySelectorAll('.hover-dropdown');
+
+        dropdowns.forEach((dropdown) => {
+            const title = dropdown.dataset.title;
+            dropdown.addEventListener('mouseenter', () => handleMouseEnter(title));
+            dropdown.addEventListener('mouseleave', () => handleMouseLeave(title));
+        });
+
+        return () => {
+            dropdowns.forEach((dropdown) => {
+                const title = dropdown.dataset.title;
+                dropdown.removeEventListener('mouseenter', () => handleMouseEnter(title));
+                dropdown.removeEventListener('mouseleave', () => handleMouseLeave(title));
+            });
+        };
+    }, []);
 
     return (
-        <Navbar expand="lg" style={{backgroundColor: '#1f4e79'}} variant="light" dir="rtl">
-            <Container fluid style={{position: 'relative', backgroundColor: '#1f4e79', marginTop: '25px'}}>
-                <Navbar.Brand href="#" style={{position: 'relative', right: 0, display: 'flex', alignItems: 'center'}}>
-                    <Image src={imgUrl} alt="Logo" width={200} className="d-inline-block align-top logo-image"
-                           style={{borderRadius: 10}}/>
-                    <Navbar.Text className="specialButton" style={{
-                        position: 'absolute',
-                        right: '85%', // Align to the left side of the Navbar.Brand
-                        whiteSpace: 'nowrap',
-                        transform: 'translateX(10%)',
-                        backgroundColor: 'rgb(255, 192, 0)',
-                        border: '1px solid transparent',
-                        zIndex: 4,
-                        borderRadius: 10,
-                        maxWidth: '100vw', // Maximum width can be 100% of the viewport width
-                        overflow: 'hidden', // Prevents overflow
-                        textOverflow: 'ellipsis',
-                    }}>
-                        היי {studentInfo.firstname}, ברוך שובך!
+        <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
+            <Container fluid className="navbarContainer">
+                <Navbar.Brand href="#" className="navbar-brand">
+                    <Image src={imgUrl} alt="Logo" width={200} className="logo-image" />
+                    <Navbar.Text className="specialButton">
+                        הי הלן, ברוך שובך!
                     </Navbar.Text>
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav"
-                               style={{position: 'absolute', left: 0, top: 0, backgroundColor: 'rgb(90, 228, 198)',}}/>
-                <Navbar.Collapse id="basic-navbar-nav" style={{zIndex: 2}}>
-                    <Nav className="ms-auto" style={{
-                        position: 'absolute',
-                        left: 80,
-                        border: '1px solid transparent',
-                        padding: '40px',
-                        borderRadius: "10px",
-                        backgroundColor: 'rgb(90, 228, 198)',
-                    }}>
-                        <NavDropdown title="פרטי הסטודנט" id="student-details-dropdown">
-                            <NavDropdown.Item>{studentInfo.firstname} {studentInfo.lastname}</NavDropdown.Item>
-                            <NavDropdown.Item>{studentInfo.studentID}</NavDropdown.Item>
+                <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle" />
+                <Navbar.Collapse id="basic-navbar-nav">
+                    <Nav className="student-nav-items">
+                        <NavDropdown
+                            className="hover-dropdown"
+                            title="פרטי הסטודנט"
+                            id="student-details-dropdown"
+                            data-title="studentDetails"
+                            show={dropdownOpen.studentDetails}
+                        >
+                            <NavDropdown.Item>הלן שוסטר</NavDropdown.Item>
+                            <NavDropdown.Item>222222223</NavDropdown.Item>
                         </NavDropdown>
-                        <NavDropdown title="מחלקה" id="department-dropdown">
-                            <NavDropdown.Item>{studentInfo.department}</NavDropdown.Item>
+                        <NavDropdown
+                            className="hover-dropdown"
+                            title="מחלקה"
+                            id="department-dropdown"
+                            data-title="department"
+                            show={dropdownOpen.department}
+                        >
+                            <NavDropdown.Item>ניהול תעשייתי</NavDropdown.Item>
                         </NavDropdown>
-                        <NavDropdown title="מגמה" id="specialization-dropdown">
-                            {/* todo */}
+                        <NavDropdown
+                            className="hover-dropdown"
+                            title="מגמה"
+                            id="specialization-dropdown"
+                            data-title="specialization"
+                            show={dropdownOpen.specialization}
+                        >
                             <NavDropdown.Item>מערכות מידע</NavDropdown.Item>
                         </NavDropdown>
-                        <NavDropdown title="שנת לימוד" id="study-year-dropdown">
-                            {/* todo */}
+                        <NavDropdown
+                            className="hover-dropdown"
+                            title="שנת לימוד"
+                            id="study-year-dropdown"
+                            data-title="studyYear"
+                            show={dropdownOpen.studyYear}
+                        >
                             <NavDropdown.Item>ג</NavDropdown.Item>
                         </NavDropdown>
-                        <NavDropdown title="ממוצע ציונים" id="grades-origin-dropdown">
-                            <NavDropdown.Item>{studentInfo.average}</NavDropdown.Item>
+                        <NavDropdown
+                            className="hover-dropdown"
+                            title="ממוצא ציונים"
+                            id="grades-origin-dropdown"
+                            data-title="gradesOrigin"
+                            show={dropdownOpen.gradesOrigin}
+                        >
+                            <NavDropdown.Item>99</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
-                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100} style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: '60%',
-                    transform: 'translateY(-50%)',
-                    zIndex: 2,
-                    borderRadius: 9
-                }}/>
+                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100} />
             </Container>
         </Navbar>
     );
