@@ -9,6 +9,7 @@ function CourseDetails({ studentInfo }) {
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
     const [exams, setExams] = useState([]);
+    const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -31,6 +32,12 @@ function CourseDetails({ studentInfo }) {
                 setExams(course.exams || []);
                 setCourseName(course.fullname || '');
             }
+            fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    setPersonalActivities(data.personalActivities || []);
+                })
+                .catch(error => console.error('Error fetching personal activities:', error));
             setIsLoading(false);
         }
     }, [studentInfo, courseId]);
@@ -79,7 +86,6 @@ function CourseDetails({ studentInfo }) {
             },
             body: JSON.stringify({
                 courseId,
-                taskType: 'Assignment', // Default task type
                 taskName: newTask.taskName,
                 dueDate: newTask.dueDate,
                 modifyDate: newTask.modifyDate,
@@ -89,14 +95,12 @@ function CourseDetails({ studentInfo }) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Update tasks state to include the new task
-                    setTasks([...tasks, {
-                        task_id: data.task_id, // Assuming the API returns the new task ID
-                        task_type: 'Assignment', // Default task type
-                        task_name: newTask.taskName,
-                        due_date: newTask.dueDate,
-                        modify_date: newTask.modifyDate,
-                        task_status: newTask.status
+                    setPersonalActivities([...personalActivities, {
+                        id: data.task_id,
+                        taskname: newTask.taskName,
+                        duedate: newTask.dueDate,
+                        modifydate: newTask.modifyDate,
+                        status: newTask.status
                     }]);
                     setNewTask({
                         taskName: '',
@@ -114,6 +118,27 @@ function CourseDetails({ studentInfo }) {
             });
     };
 
+    const handleDelete = (taskId) => {
+        fetch('/local/studentdash/ajax/fetch_data.php', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ taskId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setPersonalActivities(personalActivities.filter(activity => activity.id !== taskId));
+                } else {
+                    console.error('Failed to delete task:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    };
+
     if (isLoading) {
         return <div><h2>Loading...</h2></div>;
     }
@@ -123,7 +148,7 @@ function CourseDetails({ studentInfo }) {
             <Container fluid style={{ backgroundColor: 'white', borderRadius: '10px', position: "relative" }}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to="/back">
-                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50" alt="collapse content"  className="hover-effect-image"/>
+                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50" alt="collapse content" className="hover-effect-image" />
                     </Link>
 
                     <h2 style={{ color: "black", fontWeight: "bolder" }}>{courseName}</h2>
@@ -136,7 +161,6 @@ function CourseDetails({ studentInfo }) {
                 <Row>
                     <Col>
                         <Table responsive="sm" className="lecture-time" style={{ width: '60%', border: '1px solid transparent', textAlign: 'center', backgroundColor: 'rgb(255, 192, 0)', margin: '10px', borderRadius: '15px' }}>
-
                             <tr>
                                 <th></th>
                                 <th></th>
@@ -145,7 +169,7 @@ function CourseDetails({ studentInfo }) {
                                 <th>הרצאות שהועברו</th>
                             </tr>
                             {schedule.map((lecture, index) => (
-                                <tr key={index}>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
                                     <td>{lecture.type || 'הרצאות'}</td>
                                     <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
                                     <td>{lecture.day_of_week || 'יום חמישי'}</td>
@@ -172,33 +196,29 @@ function CourseDetails({ studentInfo }) {
                                 <th></th>
                             </tr>
                             {tasks.map((task, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
                                     <td>{index + 1}</td>
                                     <td>{task.task_type}</td>
                                     <td>{task.task_name}</td>
                                     <td>{task.due_date}</td>
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
-                                    {task.task_status==='1' ? null : (
-                                        <>
-                                            <td>
-                                                <Button href={task.url} style={{ border: 'none' }} variant="light">
-                                                    <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
-                                                </Button>
-                                            </td>
-                                            <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="" className="hover-effect-image" /></td>
-                                            <td>
-                                                <Button style={{ border: 'none' }} variant="light" onClick={() => handleAddToCalendar()}>
-                                                    <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="" className="hover-effect-image" />
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowModal(task)}>
-                                                    <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="" className="hover-effect-image" />
-                                                </Button>
-                                            </td>
-                                        </>
-                                    )}
+                                    <td>
+                                        <Button href={task.url} style={{ border: 'none' }} variant="light">
+                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
+                                        </Button>
+                                    </td>
+                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="" className="hover-effect-image" /></td>
+                                    <td>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleAddToCalendar()}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="" className="hover-effect-image" />
+                                        </Button>
+                                    </td>
+                                    <td>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="" className="hover-effect-image" />
+                                        </Button>
+                                    </td>
                                 </tr>
                             ))}
                         </Table>
@@ -208,11 +228,11 @@ function CourseDetails({ studentInfo }) {
                         {showForm && (
                             <Form className="activityAdderForm" onSubmit={handleSubmit} style={{
                                 marginTop: '20px',
-                                marginBottom:'20px',
+                                marginBottom: '20px',
                                 backgroundColor: '#f8f9fa',
                                 padding: '20px',
-                                width:'60%',
-                                marginLeft:'20%',
+                                width: '60%',
+                                marginLeft: '20%',
                                 display: 'block',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -286,7 +306,7 @@ function CourseDetails({ studentInfo }) {
                                 <th>מיקום</th>
                             </tr>
                             {exams.map((exam, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
                                     <td>{index + 1 || '1'}</td>
                                     <td>{exam.exam_name || 'מבחן אמצע'}</td>
                                     <td>{exam.exam_date || '22/02/24'}</td>
@@ -347,6 +367,50 @@ function CourseDetails({ studentInfo }) {
                                 <td>טרם נצפה</td>
                                 <td></td>
                             </tr>
+                        </Table>
+                    </Col>
+                </Row>
+
+                <Row>
+
+                    <Col>
+                        <h2 style={{textAlign:"center"}}>Personal Activities 👌</h2>
+                        <Table responsive="sm" style={{
+                            width: '95%',
+                            flex: 1,
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'lightskyblue',
+                            margin: '10px',
+                            borderRadius: '10px'
+                        }}>
+                            <tr>
+                                <th>מס"ד</th>
+                                <th>שם המטלה</th>
+                                <th>מועד אחרון</th>
+                                <th>מועד בפועל</th>
+                                <th>סטטוס</th>
+                                <th>מחק</th>
+                            </tr>
+                            {personalActivities.map((activity, index) => (
+                                <tr key={index + tasks.length} className="table-row"
+                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                    <td>{index + 1 + tasks.length}</td>
+                                    <td>{activity.taskname}</td>
+                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
+                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
+                                    <td>{activity.status}</td>
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleDelete(activity.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path
+                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                            </svg>
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
                         </Table>
                     </Col>
                 </Row>
