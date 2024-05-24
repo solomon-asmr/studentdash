@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'department' => $user->department,
         'email' => $user->email,
         'phone' => $user->phone1,
-        'average' => $averageGrade,
+        'gradesAverage' => $averageGrade,
         'courses' => fetch_user_courses($USER->id),
         'personalActivities' => array_values($personalActivities)
     );
@@ -96,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
 
-function ensure_personal_activities_table_exists() {
+function ensure_personal_activities_table_exists()
+{
     global $DB;
 
     $table = new xmldb_table('personal_activities');
@@ -115,7 +116,8 @@ function ensure_personal_activities_table_exists() {
     }
 }
 
-function fetch_user_grades($userId) {
+function fetch_user_grades($userId)
+{
     global $DB;
 
     $gradesSQL = "
@@ -133,7 +135,8 @@ function fetch_user_grades($userId) {
     return $DB->get_records_sql($gradesSQL, array('userid' => $userId));
 }
 
-function calculate_average_grade($grades) {
+function calculate_average_grade($grades)
+{
     $totalGrades = 0;
     $count = count($grades);
 
@@ -147,7 +150,8 @@ function calculate_average_grade($grades) {
     }
 }
 
-function fetch_user_courses($userId) {
+function fetch_user_courses($userId)
+{
     global $DB;
 
     $courses = enrol_get_all_users_courses($userId);
@@ -176,7 +180,8 @@ function fetch_user_courses($userId) {
     return $userCourses;
 }
 
-function fetch_course_tasks($userId, $courseId) {
+function fetch_course_tasks($userId, $courseId)
+{
     global $DB;
 
     $tasks = array();
@@ -237,7 +242,8 @@ function fetch_course_tasks($userId, $courseId) {
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId) {
+function fetch_course_events($userId, $courseId)
+{
     global $DB;
 
     $start = strtotime('today');
@@ -258,7 +264,8 @@ function fetch_course_events($userId, $courseId) {
     return $courseEvents;
 }
 
-function fetch_course_schedule($courseId) {
+function fetch_course_schedule($courseId)
+{
     global $DB;
 
     // Assuming events in mdl_event table are used to schedule lectures and classes
@@ -286,7 +293,8 @@ function fetch_course_schedule($courseId) {
     return array_values($schedule); // Ensure the result is returned as an array
 }
 
-function fetch_course_exams($courseId) {
+function fetch_course_exams($courseId)
+{
     global $DB;
 
     $examSQL = "
@@ -309,15 +317,17 @@ function fetch_course_exams($courseId) {
     return array_values($exams); // Ensure the result is returned as an array
 }
 
-function set_json_headers() {
+function set_json_headers()
+{
     header('Access-Control-Allow-Origin: http://localhost:3000');
     header('Access-Control-Allow-Methods: GET, POST, DELETE'); // Adjusted to allow DELETE
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 }
 
-function handle_invalid_request() {
+function handle_invalid_request()
+{
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-?>
+

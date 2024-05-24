@@ -1,17 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Navbar, Nav, Image, NavDropdown } from 'react-bootstrap';
+import React, {useState, useEffect} from 'react';
+import {Container, Navbar, Nav, Image, NavDropdown} from 'react-bootstrap';
 import './NavigationBar.css';
 
-function NavigationBar({ studentInfo }) {
+function NavigationBar({studentInfo}) {
     const imgUrl = "frontend/dashboard/build/studentDash.png";
     const imgUrl2 = "frontend/dashboard/build/sapir-logo.jpg";
+
 
     const [dropdownOpen, setDropdownOpen] = useState({
         studentDetails: false,
         department: false,
         specialization: false,
         studyYear: false,
-        gradesOrigin: false,
+        gradesAverage: false,
     });
 
     useEffect(() => {
@@ -50,12 +51,12 @@ function NavigationBar({ studentInfo }) {
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
             <Container fluid className="navbarContainer">
                 <Navbar.Brand href="#" className="navbar-brand">
-                    <Image src={imgUrl} alt="Logo" width={200} className="logo-image" />
+                    <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
                     <Navbar.Text className="specialButton">
-                        הי הלן, ברוך שובך!
+                        הי {studentInfo.firstname}, ברוך שובך!
                     </Navbar.Text>
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle" />
+                <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="student-nav-items">
                         <NavDropdown
@@ -65,8 +66,8 @@ function NavigationBar({ studentInfo }) {
                             data-title="studentDetails"
                             show={dropdownOpen.studentDetails}
                         >
-                            <NavDropdown.Item>הלן שוסטר</NavDropdown.Item>
-                            <NavDropdown.Item>222222223</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.firstname} {studentInfo.lastname}</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.studentID}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
@@ -75,7 +76,7 @@ function NavigationBar({ studentInfo }) {
                             data-title="department"
                             show={dropdownOpen.department}
                         >
-                            <NavDropdown.Item>ניהול תעשייתי</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.department}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
@@ -84,7 +85,7 @@ function NavigationBar({ studentInfo }) {
                             data-title="specialization"
                             show={dropdownOpen.specialization}
                         >
-                            <NavDropdown.Item>מערכות מידע</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.specialization || null}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
@@ -93,20 +94,20 @@ function NavigationBar({ studentInfo }) {
                             data-title="studyYear"
                             show={dropdownOpen.studyYear}
                         >
-                            <NavDropdown.Item>ג</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.studyYear || null}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
-                            title="ממוצא ציונים"
+                            title="ממוצע ציונים"
                             id="grades-origin-dropdown"
-                            data-title="gradesOrigin"
-                            show={dropdownOpen.gradesOrigin}
+                            data-title="gradesAverage"
+                            show={dropdownOpen.gradesAverage}
                         >
-                            <NavDropdown.Item>99</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.gradesAverage}</NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
-                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100} />
+                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
             </Container>
         </Navbar>
     );
