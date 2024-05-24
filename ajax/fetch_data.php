@@ -8,6 +8,9 @@ require_login();
 
 global $DB, $USER;
 
+// Ensure the personal_activities table exists
+ensure_personal_activities_table_exists();
+
 // Set the appropriate headers to indicate JSON response and allow cross-origin requests
 set_json_headers();
 
@@ -91,6 +94,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } else {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+}
+
+function ensure_personal_activities_table_exists() {
+    global $DB;
+
+    $table = new xmldb_table('personal_activities');
+
+    if (!$DB->get_manager()->table_exists($table)) {
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('taskname', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('duedate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('modifydate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        $DB->get_manager()->create_table($table);
+    }
 }
 
 function fetch_user_grades($userId) {
