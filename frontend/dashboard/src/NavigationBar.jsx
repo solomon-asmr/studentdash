@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Container, Navbar, Nav, Image, NavDropdown} from 'react-bootstrap';
 import './NavigationBar.css';
+import {Link} from "react-router-dom";
 
 function NavigationBar({studentInfo}) {
     const imgUrl = "frontend/dashboard/build/studentDash.png";
@@ -51,7 +52,9 @@ function NavigationBar({studentInfo}) {
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
             <Container fluid className="navbarContainer">
                 <Navbar.Brand href="#" className="navbar-brand">
-                    <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
+                    <Link to="/">
+                        <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
+                    </Link>
                     <Navbar.Text className="specialButton">
                         הי {studentInfo.firstname}, ברוך שובך!
                     </Navbar.Text>
@@ -107,7 +110,9 @@ function NavigationBar({studentInfo}) {
                         </NavDropdown>
                     </Nav>
                 </Navbar.Collapse>
-                <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
+                <a href="https://www.sapir.ac.il/">
+                    <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
+                </a>
             </Container>
         </Navbar>
     );

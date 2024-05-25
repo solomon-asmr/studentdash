@@ -1,8 +1,9 @@
 /* Ensure dropdown menu appears on hover */
-.student-dashboard-navbar{
+.student-dashboard-navbar {
     font-family: Georgia, Times, "Times New Roman", serif;
     font-size: 1.3em;
 }
+
 .hover-dropdown:hover .dropdown-menu {
     display: block !important;
     margin-top: 0; /* Override Bootstrap default spacing */
@@ -12,10 +13,12 @@
 .nav-item .dropdown-menu {
     display: none; /* Hide dropdown by default */
 }
+
 .hover-dropdown .nav-link {
     background-color: transparent; /* Default background color */
     transition: background-color 0.3s ease; /* Smooth transition */
 }
+
 .dropdown-menu {
     text-align: center;
 }
@@ -58,6 +61,7 @@
     text-overflow: ellipsis;
     z-index: 4;
     padding: 5px 10px;
+    font-weight: bold;
 }
 
 .navbar-toggle {
@@ -80,7 +84,7 @@
 .logo-image2 {
     position: absolute;
     left: 0;
-    top: 60%;
+    top: 50%;
     transform: translateY(-50%);
     z-index: 2;
     border-radius: 9px;
@@ -90,32 +94,39 @@
     .specialButton {
         font-size: 12px;
     }
+
     .logo-image {
         width: 110px;
     }
+
     .logo-image2 {
         margin-bottom: 3px;
         height: 40px;
         width: 60px;
         top: 100px;
     }
+
     * {
         font-size: small;
     }
 }
+
 @media (max-width: 464px) {
     .specialButton {
         font-size: 20px;
     }
+
     .logo-image {
         width: 110px;
     }
+
     .logo-image2 {
         margin-bottom: 0;
         height: 40px;
 
         top: 100px;
     }
+
     /** {
         font-size: small;
     }*/
