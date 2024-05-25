@@ -43,5 +43,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:80/"
+  "proxy": "http://localhost:80/",
+  "homepage": "/local/studentdash/dashboard.php"
 }

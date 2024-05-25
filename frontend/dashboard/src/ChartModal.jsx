@@ -25,16 +25,16 @@ const ChartModal = ({show, onHide, data}) => {
     };
 
     const CustomModalHeader = styled(Modal.Header)`
-        border-bottom: none;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        border-bottom: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
     `;
 
     const CustomModalFooter = styled(Modal.Footer)`
-        border-top: none;
-        display: flex;
-        justify-content: center;
+        border-top: none !important;
+        display: flex !important;
+        justify-content: center !important;
     `;
 
     return (

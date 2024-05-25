@@ -17,18 +17,18 @@ const SchedModal = ({show, onHide, data}) => {
     };
 
     const CustomModalHeader = styled(Modal.Header)`
-        border-bottom: none;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
+        border-bottom: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
     `;
 
     const CustomModalFooter = styled(Modal.Footer)`
-        border-top: none;
-        display: flex;
-        justify-content: center;
-        width: 100%;
+        border-top: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
     `;
 
     return (
