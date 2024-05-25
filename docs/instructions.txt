@@ -9,7 +9,7 @@ https://webyog.com/product/sqlyog/
 
 3, download the plugin using this link -> https://gitlab.com/orbarcalifa/studentdash.git
 
-4 , replace the file name primary in this dirctory (MoodleWindowsInstaller-latest-403\server\moodle\lib\classes\navigation\output) inside your moodle folder with the primary.txt found in the studentdash plugin folder named additional  to fix the default navigation bar 
+4 , replace the file named primary in this dirctory (MoodleWindowsInstaller-latest-403\server\moodle\lib\classes\navigation\output) with the one that is found inside your moodle plugin folderstudentdash/additional/primary fix the default moodles navigation bar 
 
 5, move  studentdash plugin folder  to this directory MoodleWindowsInstaller-latest-403\server\moodle\local
 
