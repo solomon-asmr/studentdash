@@ -16,7 +16,7 @@ set_json_headers();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch user details
-    $user =fetch_user_with_custom_fields($USER->id);
+    $user = fetch_user_with_custom_fields($USER->id);
 
     // Fetch grades for the current user
     $grades = fetch_user_grades($USER->id);
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Fetch personal activities for the user
     $courseId = $_GET['courseId'] ?? null;
-    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ??[];
+    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ?? [];
     // Initialize data array
     $data = array(
         'studentID' => $user->idnumber,
@@ -96,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-function fetch_user_with_custom_fields($userId) {
+function fetch_user_with_custom_fields($userId)
+{
     global $DB;
 
     $sql = "SELECT u.*,
@@ -206,7 +207,9 @@ function fetch_user_courses($userId)
 
     return $userCourses;
 }
-function fetch_course_role_users($courseId, $roleId) {
+
+function fetch_course_role_users($courseId, $roleId)
+{
     global $DB;
 
     $sql = "SELECT u.id, u.firstname, u.lastname, u.email
@@ -281,7 +284,8 @@ function fetch_course_tasks($userId, $courseId)
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId) {
+function fetch_course_events($userId, $courseId)
+{
     global $DB;
 
     $start = strtotime('today');
@@ -301,7 +305,9 @@ function fetch_course_events($userId, $courseId) {
 
     return $courseEvents;
 }
-function get_assignment_file_url($courseModuleId) {
+
+function get_assignment_file_url($courseModuleId)
+{
     global $CFG;
 
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
