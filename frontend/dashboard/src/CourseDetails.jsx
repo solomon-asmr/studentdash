@@ -160,27 +160,55 @@ function CourseDetails({ studentInfo }) {
 
                 <Row>
                     <Col>
-                        <Table responsive="sm" className="lecture-time" style={{ width: '60%', border: '1px solid transparent', textAlign: 'center', backgroundColor: 'rgb(255, 192, 0)', margin: '10px', borderRadius: '15px' }}>
+                        <Table responsive="sm" className="lecture-time" style={{
+                            width: '60%',
+                            border: '1px solid transparent',
+                            textAlign: 'center',
+                            backgroundColor: 'rgb(255, 192, 0)',
+                            margin: '10px',
+                            borderRadius: '15px'
+                        }}>
+                            <thead>
+                            <th></th>
+                            <th></th>
+                            <th>יום בשבוע</th>
+                            <th>שעות</th>
+                            <th>הרצאות שהועברו</th>
+                            </thead>
                             <tr>
-                                <th></th>
-                                <th></th>
-                                <th>יום בשבוע</th>
-                                <th>שעות</th>
-                                <th>הרצאות שהועברו</th>
+                                <td>Lectures</td>
+                                <td>{schedule[0] ? schedule[0].lecturer_name : 'empty' }</td>
+                                <td>{schedule[0] ? schedule[0].day_of_week : 'empty' }</td>
+                                <td>{schedule[0] ? schedule[0].start_time : 'empty' } - {schedule[0] ? schedule[0].end_time : 'empty'}</td>
+                                <td>progress</td>
                             </tr>
-                            {schedule.map((lecture, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
-                                    <td>{lecture.type || 'הרצאות'}</td>
-                                    <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
-                                    <td>{lecture.day_of_week || 'יום חמישי'}</td>
-                                    <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>
-                                </tr>
-                            ))}
+                            <tr>
+                                <td>Practices</td>
+                                <td>22</td>
+                                <td>33</td>
+                                <td>44</td>
+                                <td>progress</td>
+                            </tr>
+                            {/*{schedule.map((lecture, index) => (*/}
+                            {/*    <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>*/}
+                            {/*        <td>{lecture.type || 'הרצאות'}</td>*/}
+                            {/*        <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>*/}
+                            {/*        <td>{lecture.day_of_week || 'יום חמישי'}</td>*/}
+                            {/*        <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>*/}
+                            {/*    </tr>*/}
+                            {/*))}*/}
                         </Table>
                     </Col>
                 </Row>
 
-                <Row className="subject-detail" style={{ backgroundColor: '#5ae4c6', border: '1px solid transparent', textAlign: 'center', borderRadius: '10px', margin: '10px', overflowX: 'auto' }}>
+                <Row className="subject-detail" style={{
+                    backgroundColor: '#5ae4c6',
+                    border: '1px solid transparent',
+                    textAlign: 'center',
+                    borderRadius: '10px',
+                    margin: '10px',
+                    overflowX: 'auto'
+                }}>
                     <Col>
                         <Table responsive="sm" style={{ width: '95%', flex: 1, borderCollapse: 'collapse', backgroundColor: 'white', margin: '10px' }}>
                             <tr>

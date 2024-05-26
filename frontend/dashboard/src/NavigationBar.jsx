@@ -48,6 +48,22 @@ function NavigationBar({studentInfo}) {
         };
     }, []);
 
+    function getAcadmicYear() {
+        switch (studentInfo.academic_year) {
+            case '1':
+                return 'א';
+            case '2':
+                return 'ב';
+            case '3':
+                return 'ג';
+            case '4':
+                return 'ד';
+            default:
+                return studentInfo.academic_year;
+        }
+        return undefined;
+    }
+
     return (
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
             <Container fluid className="navbarContainer">
@@ -88,7 +104,7 @@ function NavigationBar({studentInfo}) {
                             data-title="specialization"
                             show={dropdownOpen.specialization}
                         >
-                            <NavDropdown.Item>{studentInfo.specialization || null}</NavDropdown.Item>
+                            <NavDropdown.Item>{studentInfo.major || null}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
@@ -97,7 +113,7 @@ function NavigationBar({studentInfo}) {
                             data-title="studyYear"
                             show={dropdownOpen.studyYear}
                         >
-                            <NavDropdown.Item>{studentInfo.studyYear || null}</NavDropdown.Item>
+                            <NavDropdown.Item>{getAcadmicYear()}</NavDropdown.Item>
                         </NavDropdown>
                         <NavDropdown
                             className="hover-dropdown"
