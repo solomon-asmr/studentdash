@@ -16,7 +16,7 @@ set_json_headers();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch user details
-    $user = $DB->get_record('user', array('id' => $USER->id));
+    $user =fetch_user_with_custom_fields($USER->id);
 
     // Fetch grades for the current user
     $grades = fetch_user_grades($USER->id);
@@ -26,8 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Fetch personal activities for the user
     $courseId = $_GET['courseId'] ?? null;
-    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ?? [];
-
+    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ??[];
     // Initialize data array
     $data = array(
         'studentID' => $user->idnumber,
@@ -38,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'email' => $user->email,
         'phone' => $user->phone1,
         'gradesAverage' => $averageGrade,
+        'major' => $user->major,
+        'academic_year' => $user->academic_year,
         'courses' => fetch_user_courses($USER->id),
         'personalActivities' => array_values($personalActivities)
     );
@@ -94,6 +95,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 } else {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
+}
+function fetch_user_with_custom_fields($userId) {
+    global $DB;
+
+    $sql = "SELECT u.*,
+                   max(CASE WHEN uf.shortname = 'major' THEN uid.data ELSE NULL END) AS major,
+                   max(CASE WHEN uf.shortname = 'academic_year' THEN uid.data ELSE NULL END) AS academic_year
+            FROM {user} u
+            LEFT JOIN {user_info_data} uid ON uid.userid = u.id
+            LEFT JOIN {user_info_field} uf ON uf.id = uid.fieldid
+            WHERE u.id = :userid
+            GROUP BY u.id";
+
+    return $DB->get_record_sql($sql, ['userid' => $userId]);
 }
 
 function ensure_personal_activities_table_exists()
@@ -156,6 +171,14 @@ function fetch_user_courses($userId)
 
     $courses = enrol_get_all_users_courses($userId);
     $userCourses = array();
+    $semesterStart = new DateTime('2024-02-02');  // Example start date of the semester
+    $semesterDuration = 20;  // Duration of the semester in weeks
+    $currentDate = new DateTime();  // Today's date
+    // Calculate the number of weeks since the semester started
+    $weeksElapsed = $semesterStart->diff($currentDate)->days / 7;
+
+    // Calculate the progression as a percentage
+    $progression = min(100, ($weeksElapsed / $semesterDuration) * 100);
 
     foreach ($courses as $course) {
         // Fetch lecturer details
@@ -163,6 +186,7 @@ function fetch_user_courses($userId)
         $roles = get_role_users(3, $context);  // Assuming role id 3 for lecturers
         $lecturer = reset($roles);  // Get the first lecturer found
 
+        $secondary_teachers = fetch_course_role_users($course->id, 9);  // Assuming 9 is for secondary teachers
         $courseData = array(
             'id' => $course->id,
             'fullname' => $course->fullname,
@@ -172,12 +196,26 @@ function fetch_user_courses($userId)
             'tasks' => fetch_course_tasks($userId, $course->id),
             'events' => fetch_course_events($userId, $course->id),
             'schedule' => fetch_course_schedule($course->id),
-            'exams' => fetch_course_exams($course->id)
+            'exams' => fetch_course_exams($course->id),
+
+            'secondary_teachers' => $secondary_teachers,
+            'progression' => round($progression)
         );
         $userCourses[] = $courseData;
     }
 
     return $userCourses;
+}
+function fetch_course_role_users($courseId, $roleId) {
+    global $DB;
+
+    $sql = "SELECT u.id, u.firstname, u.lastname, u.email
+            FROM {role_assignments} ra
+            JOIN {user} u ON ra.userid = u.id
+            JOIN {context} ctx ON ra.contextid = ctx.id
+            WHERE ctx.instanceid = :courseid AND ctx.contextlevel = 50 AND ra.roleid = :roleid";
+
+    return $DB->get_records_sql($sql, ['courseid' => $courseId, 'roleid' => $roleId]);
 }
 
 function fetch_course_tasks($userId, $courseId)
@@ -210,7 +248,8 @@ function fetch_course_tasks($userId, $courseId)
             'task_status' => $has_submitted,
             'modify_date' => !empty($user_submission) ? gmdate("d-m-Y", $user_submission->timemodified) : null,
             'submission_percentage' => $submission_percentage,
-            'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false)
+            'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false),
+            'fileurl' => get_assignment_file_url($cm->id)
         ];
     }
 
@@ -242,8 +281,7 @@ function fetch_course_tasks($userId, $courseId)
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId)
-{
+function fetch_course_events($userId, $courseId) {
     global $DB;
 
     $start = strtotime('today');
@@ -263,19 +301,51 @@ function fetch_course_events($userId, $courseId)
 
     return $courseEvents;
 }
+function get_assignment_file_url($courseModuleId) {
+    global $CFG;
+
+    require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
+    $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
+
+    $fs = get_file_storage();
+    $files = $fs->get_area_files($context->id, 'mod_assign', 'intro', false, 'itemid, filepath, filename', false);
+
+    foreach ($files as $file) {
+        if ($file->is_directory()) continue; // Skip directories
+
+        // Construct the URL for downloading the file
+        $url = moodle_url::make_pluginfile_url(
+            $file->get_contextid(),
+            $file->get_component(),
+            $file->get_filearea(),
+            $file->get_itemid(),
+            $file->get_filepath(),
+            $file->get_filename(),
+            true // Forces the download
+        );
+
+        // Return the first file's URL for simplicity
+        return $url->out(false);
+    }
+
+    return null; // Return null if no files were found
+}
 
 function fetch_course_schedule($courseId)
 {
     global $DB;
 
-    // Assuming events in mdl_event table are used to schedule lectures and classes
+    // Adjusted SQL query to ensure the first column is unique
     $scheduleSQL = "
         SELECT
+            e.id AS event_id,  
             CONCAT(u.firstname, ' ', u.lastname) AS lecturer_name,
             DAYNAME(FROM_UNIXTIME(e.timestart)) AS day_of_week,
             TIME_FORMAT(FROM_UNIXTIME(e.timestart), '%H:%i') AS start_time,
             TIME_FORMAT(FROM_UNIXTIME(e.timestart + e.timeduration), '%H:%i') AS end_time,
-            CASE 
+            CASE
                 WHEN e.eventtype = 'course' THEN 'lecture'
                 WHEN e.eventtype = 'user' THEN 'practice'
                 ELSE 'other'
@@ -290,7 +360,7 @@ function fetch_course_schedule($courseId)
             e.timestart
     ";
     $schedule = $DB->get_records_sql($scheduleSQL, array('courseid' => $courseId));
-    return array_values($schedule); // Ensure the result is returned as an array
+    return array_values($schedule); // Return as a numerically indexed array instead of using event_id as keys
 }
 
 function fetch_course_exams($courseId)
