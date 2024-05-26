@@ -1,53 +1,118 @@
-import React from 'react';
-import {Modal, Button} from 'react-bootstrap';
-import styled from 'styled-components';
+import React, {useState} from 'react';
+import {Modal} from 'react-bootstrap';
+import DatePicker from 'react-datepicker';
+import TimePicker from 'react-time-picker';
+import Toggle from 'react-toggle';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import 'react-datepicker/dist/react-datepicker.css';
+import 'react-time-picker/dist/TimePicker.css';
+import 'react-toggle/style.css';
+import './SchedModal.css';
+import {AddToCalendarButton} from 'add-to-calendar-button-react';
 
 const SchedModal = ({show, onHide, data}) => {
     const taskTitle = data;
 
-    const handleAddToCalendar = () => {
-        const eventTitle = encodeURIComponent(`Dedicated time for ${taskTitle}`);
-        const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
-        const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+    const [isFullDay, setIsFullDay] = useState(false);
+    const [startTime, setStartTime] = useState('08:00');
+    const [endTime, setEndTime] = useState('12:00');
+    const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
 
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}`;
-
-        window.location.href = calendarUrl;
+    const formatDate = (date) => {
+        return date.toISOString().split('T')[0];
     };
-
-    const CustomModalHeader = styled(Modal.Header)`
-        border-bottom: none !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        width: 100% !important;
-    `;
-
-    const CustomModalFooter = styled(Modal.Footer)`
-        border-top: none !important;
-        display: flex !important;
-        justify-content: center !important;
-        width: 100% !important;
-    `;
 
     return (
         <Modal show={show} onHide={onHide}>
-            <CustomModalHeader closeButton>
-                <Modal.Title style={{textAlign: 'center', width: '100%'}}>
-                    <b>הקדשת זמן ביומן</b>
-                </Modal.Title>
-            </CustomModalHeader>
+            <div className="custom-modal-header">
+                <Modal.Header closeButton>
+                    <Modal.Title className="modal-title">
+                        הקדשת זמן ביומן
+                    </Modal.Title>
+                </Modal.Header>
+            </div>
 
-            <Modal.Body>
-                HELLO
-            </Modal.Body>
+            <div className="custom-modal-body">
+                <div className="toggle-container">
+                    <label className="toggle-label">Full day</label>
+                    <Toggle
+                        defaultChecked={isFullDay}
+                        onChange={() => setIsFullDay(!isFullDay)}
+                        icons={{
+                            checked: <span className="toggle-inner-label">ON</span>,
+                            unchecked: <span className="toggle-inner-label">OFF</span>
+                        }}
+                        aria-label="Full Day Toggle"
+                        className="custom-toggle"
+                    />
+                </div>
 
-            <CustomModalFooter>
-                <Button variant="secondary" onClick={handleAddToCalendar}>
-                    אישור
-                </Button>
-            </CustomModalFooter>
+                <div className="date-time-container">
+                    <div className="date-time-picker">
+                        <label className="time-label">Start</label>
+                        <div className="input-group">
+                            <i className="far fa-calendar-alt"></i>
+                            <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="date-picker-input"
+                            />
+                        </div>
+                        <div className="input-group">
+                            <i className="far fa-clock"></i>
+                            <TimePicker
+                                className="time-picker-input"
+                                onChange={setStartTime}
+                                value={startTime}
+                                disabled={isFullDay}
+                                disableClock
+                                format="HH:mm"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="date-time-picker">
+                        <label className="time-label">End</label>
+                        <div className="input-group">
+                            <i className="far fa-calendar-alt"></i>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}
+                                dateFormat="dd/MM/yyyy"
+                                className="date-picker-input"
+                            />
+                        </div>
+                        <div className="input-group">
+                            <i className="far fa-clock"></i>
+                            <TimePicker
+                                className="time-picker-input"
+                                onChange={setEndTime}
+                                value={endTime}
+                                disabled={isFullDay}
+                                disableClock
+                                format="HH:mm"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="custom-modal-footer">
+                <Modal.Footer>
+                    <AddToCalendarButton
+                        name={`Work on ${taskTitle}`}
+                        options={['Apple', 'Google']}
+                        startDate={formatDate(startDate)}
+                        endDate={formatDate(endDate)}
+                        startTime={isFullDay ? '' : startTime}
+                        endTime={isFullDay ? '' : endTime}
+                        buttonStyle="date"
+                    ></AddToCalendarButton>
+                </Modal.Footer>
+            </div>
         </Modal>
     );
 };

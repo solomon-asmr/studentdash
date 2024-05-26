@@ -25,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $averageGrade = calculate_average_grade($grades);
 
     // Fetch personal activities for the user
-    $courseId = $_GET['courseId'];
-    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]);
+    $courseId = $_GET['courseId'] ?? null;
+    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ?? [];
 
     // Initialize data array
     $data = array(
