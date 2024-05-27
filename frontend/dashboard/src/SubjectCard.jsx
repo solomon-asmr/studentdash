@@ -25,7 +25,7 @@ function CourseCard({course, isVisible}) {
                         <Image src="/local/studentdash/frontend/dashboard/build/expand_content.svg" alt="expand content" width="30"
                                className="hover-effect-image"/>
                     </Link>
-                    <h2 style={{color: "black", fontWeight: "bolder"}}>{course.fullname}</h2>
+                    <h4 style={{color: "black", fontWeight: "bolder"}}>{course.fullname}</h4>
                     <a href={course.url}>
                         <Image className="keyboard_backspace"
                                src="/local/studentdash/frontend/dashboard/build/keyboard_backspace.png" alt="" width={50}

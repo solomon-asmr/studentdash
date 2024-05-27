@@ -257,6 +257,30 @@ function CourseDetails({studentInfo}) {
 
                                 </tr>
                             ))}
+                            {personalActivities.map((activity, index) => (
+                                <tr key={index + tasks.length} className="table-row"
+                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                    <td>{index + 1 + tasks.length}</td>
+                                    <td>personal activity</td>
+                                    <td>{activity.taskname}</td>
+                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
+                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
+                                    <td>{activity.status}</td>
+                                    <td></td>
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleDelete(activity.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path
+                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                            </svg>
+                                        </Button>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            ))}
                         </Table>
                         <div className="add-activity">
                             <span onClick={handleShowForm} style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
@@ -407,49 +431,6 @@ function CourseDetails({studentInfo}) {
                     </Col>
                 </Row>
 
-                <Row>
-
-                    <Col>
-                        <h2 style={{textAlign: "center"}}>Personal Activities 👌</h2>
-                        <Table responsive="sm" style={{
-                            width: '95%',
-                            flex: 1,
-                            borderCollapse: 'collapse',
-                            backgroundColor: 'lightskyblue',
-                            margin: '10px',
-                            borderRadius: '10px'
-                        }}>
-                            <tr>
-                                <th>מס"ד</th>
-                                <th>שם המטלה</th>
-                                <th>מועד אחרון</th>
-                                <th>מועד בפועל</th>
-                                <th>סטטוס</th>
-                                <th>מחק</th>
-                            </tr>
-                            {personalActivities.map((activity, index) => (
-                                <tr key={index + tasks.length} className="table-row"
-                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
-                                    <td>{index + 1 + tasks.length}</td>
-                                    <td>{activity.taskname}</td>
-                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
-                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
-                                    <td>{activity.status}</td>
-                                    <td>
-                                        <Button style={{border: 'none'}} variant="light"
-                                                onClick={() => handleDelete(activity.id)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path
-                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
-                                            </svg>
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </Table>
-                    </Col>
-                </Row>
             </Container>
             <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData}/>
             <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData}/>
