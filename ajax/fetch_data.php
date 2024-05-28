@@ -8,15 +8,17 @@ require_login();
 
 global $DB, $USER;
 
-// Ensure the personal_activities table exists
+// Ensure the necessary tables exist
 ensure_personal_activities_table_exists();
+ensure_exams_table_exists();
+ensure_zoom_records_table_exists();
 
 // Set the appropriate headers to indicate JSON response and allow cross-origin requests
 set_json_headers();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Fetch user details
-    $user = fetch_user_with_custom_fields($USER->id);
+    $user = $DB->get_record('user', array('id' => $USER->id));
 
     // Fetch grades for the current user
     $grades = fetch_user_grades($USER->id);
@@ -24,9 +26,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Calculate average grade for the user
     $averageGrade = calculate_average_grade($grades);
 
-    // Fetch personal activities for the user
-    $courseId = $_GET['courseId'] ?? null;
-    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]) ?? [];
+    // Fetch personal activities, exams, and zoom records for the user
+    $courseId = $_GET['courseId'];
+    $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]);
+    $exams = $DB->get_records('exams', ['courseid' => $courseId]);
+    $zoomRecords = $DB->get_records('zoom_records', ['courseid' => $courseId]);
+
+    // Debugging: Log fetched data to error log
+    error_log("Personal Activities: " . json_encode($personalActivities));
+    error_log("Exams: " . json_encode($exams));
+    error_log("Zoom Records: " . json_encode($zoomRecords));
+
     // Initialize data array
     $data = array(
         'studentID' => $user->idnumber,
@@ -37,83 +47,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'email' => $user->email,
         'phone' => $user->phone1,
         'gradesAverage' => $averageGrade,
-        'major' => $user->major,
-        'academic_year' => $user->academic_year,
         'courses' => fetch_user_courses($USER->id),
-        'personalActivities' => array_values($personalActivities)
+        'personalActivities' => array_values($personalActivities),
+        'exams' => array_values($exams),
+        'zoomRecords' => array_values($zoomRecords)
     );
 
     // Output the response data as JSON
     echo json_encode($data);
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Handle POST request for adding personal activities and zoom records
     $input = json_decode(file_get_contents('php://input'), true);
 
-    // Validate the input
-    if (empty($input['courseId']) || empty($input['taskName']) || empty($input['dueDate']) || empty($input['modifyDate']) || empty($input['status'])) {
+    if (isset($input['personalActivity'])) {
+        // Validate the input
+        $activity = $input['personalActivity'];
+        if (empty($activity['courseId']) || empty($activity['taskName']) || empty($activity['dueDate']) || empty($activity['modifyDate']) || empty($activity['status'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid input']);
+            exit;
+        }
+
+        // Insert the new personal activity into the personal_activities table
+        $task = new stdClass();
+        $task->userid = $USER->id;
+        $task->courseid = $activity['courseId'];
+        $task->taskname = $activity['taskName'];
+        $task->duedate = strtotime($activity['dueDate']);
+        $task->modifydate = strtotime($activity['modifyDate']);
+        $task->status = $activity['status'];
+
+        try {
+            $taskId = $DB->insert_record('personal_activities', $task);
+            echo json_encode(['success' => true, 'task_id' => $taskId]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    if (isset($input['zoomRecord'])) {
+        // Validate the input
+        $record = $input['zoomRecord'];
+        if (empty($record['courseId']) || empty($record['recordingType']) || empty($record['recordingName']) || empty($record['recordingDate']) || empty($record['status'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid input']);
+            exit;
+        }
+
+        // Insert the new Zoom record into the mdl_zoom_records table
+        $zoomRecord = new stdClass();
+        $zoomRecord->courseid = $record['courseId'];
+        $zoomRecord->recording_type = $record['recordingType'];
+        $zoomRecord->recording_name = $record['recordingName'];
+        $zoomRecord->recording_date = strtotime($record['recordingDate']);
+        $zoomRecord->status = $record['status'];
+
+        try {
+            $zoomRecordId = $DB->insert_record('mdl_zoom_records', $zoomRecord);
+            echo json_encode(['success' => true, 'zoomRecordId' => $zoomRecordId]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
+    // Handle PATCH request for updating Zoom record status
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($input['zoomRecordId']) || empty($input['status'])) {
         echo json_encode(['success' => false, 'error' => 'Invalid input']);
         exit;
     }
 
-    $courseId = $input['courseId'];
-    $taskName = $input['taskName'];
-    $dueDate = strtotime($input['dueDate']); // Convert to Unix timestamp
-    $modifyDate = strtotime($input['modifyDate']); // Convert to Unix timestamp
+    $zoomRecordId = $input['zoomRecordId'];
     $status = $input['status'];
 
-    // Insert the new personal activity into the personal_activities table
-    $task = new stdClass();
-    $task->userid = $USER->id;
-    $task->courseid = $courseId;
-    $task->taskname = $taskName;
-    $task->duedate = $dueDate;
-    $task->modifydate = $modifyDate;
-    $task->status = $status;
-
     try {
-        $taskId = $DB->insert_record('personal_activities', $task);
-        echo json_encode(['success' => true, 'task_id' => $taskId]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    if (empty($input['taskId'])) {
-        echo json_encode(['success' => false, 'error' => 'Invalid input']);
-        exit;
-    }
-
-    $taskId = $input['taskId'];
-
-    try {
-        $DB->delete_records('personal_activities', ['id' => $taskId, 'userid' => $USER->id]);
+        $DB->update_record('mdl_zoom_records', (object) ['id' => $zoomRecordId, 'status' => $status]);
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     }
 } else {
-    http_response_code(405); // Method Not Allowed
-    echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
-}
-function fetch_user_with_custom_fields($userId)
-{
-    global $DB;
-
-    $sql = "SELECT u.*,
-                   max(CASE WHEN uf.shortname = 'major' THEN uid.data ELSE NULL END) AS major,
-                   max(CASE WHEN uf.shortname = 'academic_year' THEN uid.data ELSE NULL END) AS academic_year
-            FROM {user} u
-            LEFT JOIN {user_info_data} uid ON uid.userid = u.id
-            LEFT JOIN {user_info_field} uf ON uf.id = uid.fieldid
-            WHERE u.id = :userid
-            GROUP BY u.id";
-
-    return $DB->get_record_sql($sql, ['userid' => $userId]);
+    handle_invalid_request();
 }
 
-function ensure_personal_activities_table_exists()
-{
+function ensure_personal_activities_table_exists() {
     global $DB;
 
     $table = new xmldb_table('personal_activities');
@@ -132,8 +149,44 @@ function ensure_personal_activities_table_exists()
     }
 }
 
-function fetch_user_grades($userId)
-{
+function ensure_exams_table_exists() {
+    global $DB;
+
+    $table = new xmldb_table('exams');
+
+    if (!$DB->get_manager()->table_exists($table)) {
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('exam_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('exam_date', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('exam_time', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('duration', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('location', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        $DB->get_manager()->create_table($table);
+    }
+}
+
+function ensure_zoom_records_table_exists() {
+    global $DB;
+
+    $table = new xmldb_table('zoom_records');
+
+    if (!$DB->get_manager()->table_exists($table)) {
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_date', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        $DB->get_manager()->create_table($table);
+    }
+}
+
+function fetch_user_grades($userId) {
     global $DB;
 
     $gradesSQL = "
@@ -151,8 +204,7 @@ function fetch_user_grades($userId)
     return $DB->get_records_sql($gradesSQL, array('userid' => $userId));
 }
 
-function calculate_average_grade($grades)
-{
+function calculate_average_grade($grades) {
     $totalGrades = 0;
     $count = count($grades);
 
@@ -166,20 +218,11 @@ function calculate_average_grade($grades)
     }
 }
 
-function fetch_user_courses($userId)
-{
+function fetch_user_courses($userId) {
     global $DB;
 
     $courses = enrol_get_all_users_courses($userId);
     $userCourses = array();
-    $semesterStart = new DateTime('2024-02-02');  // Example start date of the semester
-    $semesterDuration = 20;  // Duration of the semester in weeks
-    $currentDate = new DateTime();  // Today's date
-    // Calculate the number of weeks since the semester started
-    $weeksElapsed = $semesterStart->diff($currentDate)->days / 7;
-
-    // Calculate the progression as a percentage
-    $progression = min(100, ($weeksElapsed / $semesterDuration) * 100);
 
     foreach ($courses as $course) {
         // Fetch lecturer details
@@ -187,7 +230,6 @@ function fetch_user_courses($userId)
         $roles = get_role_users(3, $context);  // Assuming role id 3 for lecturers
         $lecturer = reset($roles);  // Get the first lecturer found
 
-        $secondary_teachers = fetch_course_role_users($course->id, 9);  // Assuming 9 is for secondary teachers
         $courseData = array(
             'id' => $course->id,
             'fullname' => $course->fullname,
@@ -198,9 +240,7 @@ function fetch_user_courses($userId)
             'events' => fetch_course_events($userId, $course->id),
             'schedule' => fetch_course_schedule($course->id),
             'exams' => fetch_course_exams($course->id),
-
-            'secondary_teachers' => $secondary_teachers,
-            'progression' => round($progression)
+            'zoomRecords' => fetch_course_zoom_records($course->id)
         );
         $userCourses[] = $courseData;
     }
@@ -208,21 +248,7 @@ function fetch_user_courses($userId)
     return $userCourses;
 }
 
-function fetch_course_role_users($courseId, $roleId)
-{
-    global $DB;
-
-    $sql = "SELECT u.id, u.firstname, u.lastname, u.email
-            FROM {role_assignments} ra
-            JOIN {user} u ON ra.userid = u.id
-            JOIN {context} ctx ON ra.contextid = ctx.id
-            WHERE ctx.instanceid = :courseid AND ctx.contextlevel = 50 AND ra.roleid = :roleid";
-
-    return $DB->get_records_sql($sql, ['courseid' => $courseId, 'roleid' => $roleId]);
-}
-
-function fetch_course_tasks($userId, $courseId)
-{
+function fetch_course_tasks($userId, $courseId) {
     global $DB;
 
     $tasks = array();
@@ -251,8 +277,7 @@ function fetch_course_tasks($userId, $courseId)
             'task_status' => $has_submitted,
             'modify_date' => !empty($user_submission) ? gmdate("d-m-Y", $user_submission->timemodified) : null,
             'submission_percentage' => $submission_percentage,
-            'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false),
-            'fileurl' => get_assignment_file_url($cm->id)
+            'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false)
         ];
     }
 
@@ -284,8 +309,7 @@ function fetch_course_tasks($userId, $courseId)
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId)
-{
+function fetch_course_events($userId, $courseId) {
     global $DB;
 
     $start = strtotime('today');
@@ -306,52 +330,17 @@ function fetch_course_events($userId, $courseId)
     return $courseEvents;
 }
 
-function get_assignment_file_url($courseModuleId)
-{
-    global $CFG;
-
-    require_once($CFG->dirroot . '/mod/assign/locallib.php');
-
-    $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
-    $context = context_module::instance($cm->id);
-
-    $fs = get_file_storage();
-    $files = $fs->get_area_files($context->id, 'mod_assign', 'intro', false, 'itemid, filepath, filename', false);
-
-    foreach ($files as $file) {
-        if ($file->is_directory()) continue; // Skip directories
-
-        // Construct the URL for downloading the file
-        $url = moodle_url::make_pluginfile_url(
-            $file->get_contextid(),
-            $file->get_component(),
-            $file->get_filearea(),
-            $file->get_itemid(),
-            $file->get_filepath(),
-            $file->get_filename(),
-            true // Forces the download
-        );
-
-        // Return the first file's URL for simplicity
-        return $url->out(false);
-    }
-
-    return null; // Return null if no files were found
-}
-
-function fetch_course_schedule($courseId)
-{
+function fetch_course_schedule($courseId) {
     global $DB;
 
-    // Adjusted SQL query to ensure the first column is unique
+    // Assuming events in mdl_event table are used to schedule lectures and classes
     $scheduleSQL = "
         SELECT
-            e.id AS event_id,  
             CONCAT(u.firstname, ' ', u.lastname) AS lecturer_name,
             DAYNAME(FROM_UNIXTIME(e.timestart)) AS day_of_week,
             TIME_FORMAT(FROM_UNIXTIME(e.timestart), '%H:%i') AS start_time,
             TIME_FORMAT(FROM_UNIXTIME(e.timestart + e.timeduration), '%H:%i') AS end_time,
-            CASE
+            CASE 
                 WHEN e.eventtype = 'course' THEN 'lecture'
                 WHEN e.eventtype = 'user' THEN 'practice'
                 ELSE 'other'
@@ -366,44 +355,59 @@ function fetch_course_schedule($courseId)
             e.timestart
     ";
     $schedule = $DB->get_records_sql($scheduleSQL, array('courseid' => $courseId));
-    return array_values($schedule); // Return as a numerically indexed array instead of using event_id as keys
+    return array_values($schedule); // Ensure the result is returned as an array
 }
 
-function fetch_course_exams($courseId)
-{
+function fetch_course_exams($courseId) {
     global $DB;
 
     $examSQL = "
         SELECT
-            q.id AS exam_id,
-            q.name AS exam_name,
-            DATE(FROM_UNIXTIME(q.timeclose)) AS exam_date,
-            TIME_FORMAT(FROM_UNIXTIME(q.timeclose), '%H:%i') AS exam_time,
-            SEC_TO_TIME(q.timelimit) AS exam_duration,
-            q.intro AS exam_location
+            id,
+            courseid,
+            exam_type,
+            exam_date,
+            exam_time,
+            duration,
+            location
         FROM
-            {quiz} q
+            {mdl_exams}
         WHERE
-            q.course = :courseid
+            courseid = :courseid
     ";
     $exams = $DB->get_records_sql($examSQL, array('courseid' => $courseId));
-
-    foreach ($exams as $exam) $exam->exam_location = "Sapir College";
-
     return array_values($exams); // Ensure the result is returned as an array
 }
 
-function set_json_headers()
-{
+function fetch_course_zoom_records($courseId) {
+    global $DB;
+
+    $zoomSQL = "
+        SELECT
+            id,
+            courseid,
+            recording_type,
+            recording_name,
+            recording_date,
+            status
+        FROM
+            {mdl_zoom_records}
+        WHERE
+            courseid = :courseid
+    ";
+    $zoomRecords = $DB->get_records_sql($zoomSQL, array('courseid' => $courseId));
+    return array_values($zoomRecords); // Ensure the result is returned as an array
+}
+
+function set_json_headers() {
     header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Methods: GET, POST, DELETE'); // Adjusted to allow DELETE
+    header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE'); // Adjusted to allow PATCH and DELETE
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 }
 
-function handle_invalid_request()
-{
+function handle_invalid_request() {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-
+?>
