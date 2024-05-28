@@ -9,7 +9,8 @@ function CourseDetails({ studentInfo }) {
     const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
-    const [exams, setExams] = useState([]); // Initialize as an empty array
+    const [exams, setExams] = useState([]);
+    const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -38,13 +39,14 @@ function CourseDetails({ studentInfo }) {
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Fetched data:', data); // Add this line
+                    console.log('Fetched data:', data); // Debugging: Log fetched data
                     setPersonalActivities(data.personalActivities || []);
                     setExams(data.exams || []);
+                    setZoomRecords(data.zoomRecords || []);
                     setIsLoading(false);
                 })
                 .catch(error => {
-                    console.error('Error fetching personal activities:', error);
+                    console.error('Error fetching data:', error);
                     setIsLoading(false);
                 });
         }
@@ -93,11 +95,13 @@ function CourseDetails({ studentInfo }) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                courseId,
-                taskName: newTask.taskName,
-                dueDate: newTask.dueDate,
-                modifyDate: newTask.modifyDate,
-                status: newTask.status
+                personalActivity: {
+                    courseId,
+                    taskName: newTask.taskName,
+                    dueDate: newTask.dueDate,
+                    modifyDate: newTask.modifyDate,
+                    status: newTask.status
+                }
             }),
         })
             .then(response => response.json())
@@ -147,6 +151,50 @@ function CourseDetails({ studentInfo }) {
             });
     };
 
+    const toggleZoomRecordStatus = (id, currentStatus) => {
+        const newStatus = currentStatus === 'watched' ? 'unwatched' : 'watched';
+
+        fetch('/local/studentdash/ajax/fetch_data.php', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ zoomRecordId: id, status: newStatus }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setZoomRecords(zoomRecords.map(record =>
+                        record.id === id ? { ...record, status: newStatus } : record
+                    ));
+                } else {
+                    console.error('Failed to update Zoom record status:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    };
+    const formatTime = (startTime, duration) => {
+        if (!startTime || !duration) return '';
+
+        // Parse the start time
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(startHours, startMinutes);
+
+        // Ensure duration is a number
+        const durationInHours = parseFloat(duration);
+        if (isNaN(durationInHours)) return '';
+
+        // Add the duration in hours
+        const endDate = new Date(startDate.getTime() + durationInHours * 60 * 60000);
+        const endHours = endDate.getHours().toString().padStart(2, '0');
+        const endMinutes = endDate.getMinutes().toString().padStart(2, '0');
+
+        // Format the time range
+        return `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${endHours}:${endMinutes}`;
+    };
     if (isLoading) {
         return <div><h2>Loading...</h2></div>;
     }
@@ -184,7 +232,7 @@ function CourseDetails({ studentInfo }) {
                                 <th>הרצאות שהועברו</th>
                             </tr>
                             {schedule.map((lecture, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
+                                <tr key={index} style={{ animationDelay: `${index * 0.5}s` }}>
                                     <td>{lecture.role || 'הרצאות'}</td>
                                     <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
                                     <td>{lecture.day_of_week || 'יום חמישי'}</td>
@@ -356,13 +404,14 @@ function CourseDetails({ studentInfo }) {
                                 <th>משך</th>
                                 <th>מיקום</th>
                             </tr>
+
                             {Array.isArray(exams) && exams.length > 0 ? exams.map((exam, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
+                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
                                     <td>{index + 1}</td>
                                     <td>{exam.exam_type}</td>
                                     <td>{new Date(exam.exam_date * 1000).toLocaleDateString()}</td>
-                                    <td>{exam.exam_time}</td>
-                                    <td>{exam.duration}</td>
+                                    <td>{formatTime(exam.exam_time, exam.duration)}</td>
+                                    <td>{exam.duration} שעות  </td>
                                     <td>{exam.location}</td>
                                 </tr>
                             )) : (
@@ -370,6 +419,7 @@ function CourseDetails({ studentInfo }) {
                                     <td colSpan="6">No exams found.</td>
                                 </tr>
                             )}
+
                         </Table>
                     </Col>
                     <Col className="responsive-table-col" md={6} sm={12}>
@@ -382,46 +432,31 @@ function CourseDetails({ studentInfo }) {
                                 <th>סטטוס</th>
                                 <th></th>
                             </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>שיעור</td>
-                                <td>שיעור 1 הקלטה</td>
-                                <td>28/01/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>תרגול</td>
-                                <td>תרגול 1 הקלטה</td>
-                                <td>04/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>שיעור</td>
-                                <td>שיעור 2 הקלטה</td>
-                                <td>04/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>תרגול</td>
-                                <td>תרגול 2 הקלטה</td>
-                                <td>11/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>שיעור</td>
-                                <td>שיעור 4 הקלטה</td>
-                                <td>18/02/24</td>
-                                <td>טרם נצפה</td>
-                                <td></td>
-                            </tr>
+                            {zoomRecords.length > 0 ? zoomRecords.map((record, index) => (
+                                <tr key={record.id} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                    <td>{index + 1}</td>
+                                    <td>{record.recording_type}</td>
+                                    <td>{record.recording_name}</td>
+                                    <td>{new Date(record.recording_date * 1000).toLocaleDateString()}</td>
+                                    <td style={{color: record.status === 'watched' ? 'green' : 'red'}}>
+                                        {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
+                                    </td>
+                                    <td>
+                                        <Button variant="link"
+                                                onClick={() => toggleZoomRecordStatus(record.id, record.status)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
+                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path
+                                                    d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+                                            </svg>
+                                        </Button>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="6">No zoom recordings found.</td>
+                                </tr>
+                            )}
                         </Table>
                     </Col>
                 </Row>

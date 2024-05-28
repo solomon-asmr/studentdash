@@ -11,6 +11,7 @@ global $DB, $USER;
 // Ensure the necessary tables exist
 ensure_personal_activities_table_exists();
 ensure_exams_table_exists();
+ensure_zoom_records_table_exists();
 
 // Set the appropriate headers to indicate JSON response and allow cross-origin requests
 set_json_headers();
@@ -25,10 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Calculate average grade for the user
     $averageGrade = calculate_average_grade($grades);
 
-    // Fetch personal activities and exams for the user
+    // Fetch personal activities, exams, and zoom records for the user
     $courseId = $_GET['courseId'];
     $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]);
-    $exams = fetch_course_exams($courseId);
+    $exams = $DB->get_records('exams', ['courseid' => $courseId]);
+    $zoomRecords = $DB->get_records('zoom_records', ['courseid' => $courseId]);
+
+    // Debugging: Log fetched data to error log
+    error_log("Personal Activities: " . json_encode($personalActivities));
+    error_log("Exams: " . json_encode($exams));
+    error_log("Zoom Records: " . json_encode($zoomRecords));
 
     // Initialize data array
     $data = array(
@@ -42,56 +49,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         'gradesAverage' => $averageGrade,
         'courses' => fetch_user_courses($USER->id),
         'personalActivities' => array_values($personalActivities),
-        'exams' => array_values($exams)
+        'exams' => array_values($exams),
+        'zoomRecords' => array_values($zoomRecords)
     );
 
     // Output the response data as JSON
     echo json_encode($data);
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle POST request for adding personal activities
+    // Handle POST request for adding personal activities and zoom records
     $input = json_decode(file_get_contents('php://input'), true);
 
-    // Validate the input
-    if (empty($input['courseId']) || empty($input['taskName']) || empty($input['dueDate']) || empty($input['modifyDate']) || empty($input['status'])) {
+    if (isset($input['personalActivity'])) {
+        // Validate the input
+        $activity = $input['personalActivity'];
+        if (empty($activity['courseId']) || empty($activity['taskName']) || empty($activity['dueDate']) || empty($activity['modifyDate']) || empty($activity['status'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid input']);
+            exit;
+        }
+
+        // Insert the new personal activity into the personal_activities table
+        $task = new stdClass();
+        $task->userid = $USER->id;
+        $task->courseid = $activity['courseId'];
+        $task->taskname = $activity['taskName'];
+        $task->duedate = strtotime($activity['dueDate']);
+        $task->modifydate = strtotime($activity['modifyDate']);
+        $task->status = $activity['status'];
+
+        try {
+            $taskId = $DB->insert_record('personal_activities', $task);
+            echo json_encode(['success' => true, 'task_id' => $taskId]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
+    if (isset($input['zoomRecord'])) {
+        // Validate the input
+        $record = $input['zoomRecord'];
+        if (empty($record['courseId']) || empty($record['recordingType']) || empty($record['recordingName']) || empty($record['recordingDate']) || empty($record['status'])) {
+            echo json_encode(['success' => false, 'error' => 'Invalid input']);
+            exit;
+        }
+
+        // Insert the new Zoom record into the mdl_zoom_records table
+        $zoomRecord = new stdClass();
+        $zoomRecord->courseid = $record['courseId'];
+        $zoomRecord->recording_type = $record['recordingType'];
+        $zoomRecord->recording_name = $record['recordingName'];
+        $zoomRecord->recording_date = strtotime($record['recordingDate']);
+        $zoomRecord->status = $record['status'];
+
+        try {
+            $zoomRecordId = $DB->insert_record('mdl_zoom_records', $zoomRecord);
+            echo json_encode(['success' => true, 'zoomRecordId' => $zoomRecordId]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'PATCH') {
+    // Handle PATCH request for updating Zoom record status
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($input['zoomRecordId']) || empty($input['status'])) {
         echo json_encode(['success' => false, 'error' => 'Invalid input']);
         exit;
     }
 
-    $courseId = $input['courseId'];
-    $taskName = $input['taskName'];
-    $dueDate = strtotime($input['dueDate']); // Convert to Unix timestamp
-    $modifyDate = strtotime($input['modifyDate']); // Convert to Unix timestamp
+    $zoomRecordId = $input['zoomRecordId'];
     $status = $input['status'];
 
-    // Insert the new personal activity into the personal_activities table
-    $task = new stdClass();
-    $task->userid = $USER->id;
-    $task->courseid = $courseId;
-    $task->taskname = $taskName;
-    $task->duedate = $dueDate;
-    $task->modifydate = $modifyDate;
-    $task->status = $status;
-
     try {
-        $taskId = $DB->insert_record('personal_activities', $task);
-        echo json_encode(['success' => true, 'task_id' => $taskId]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-    }
-} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-    // Handle DELETE request for deleting personal activities
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    if (empty($input['taskId'])) {
-        echo json_encode(['success' => false, 'error' => 'Invalid input']);
-        exit;
-    }
-
-    $taskId = $input['taskId'];
-
-    try {
-        $DB->delete_records('personal_activities', ['id' => $taskId, 'userid' => $USER->id]);
+        $DB->update_record('mdl_zoom_records', (object) ['id' => $zoomRecordId, 'status' => $status]);
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -122,7 +152,7 @@ function ensure_personal_activities_table_exists() {
 function ensure_exams_table_exists() {
     global $DB;
 
-    $table = new xmldb_table('mdl_exams');
+    $table = new xmldb_table('exams');
 
     if (!$DB->get_manager()->table_exists($table)) {
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -132,6 +162,24 @@ function ensure_exams_table_exists() {
         $table->add_field('exam_time', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('duration', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('location', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        $DB->get_manager()->create_table($table);
+    }
+}
+
+function ensure_zoom_records_table_exists() {
+    global $DB;
+
+    $table = new xmldb_table('zoom_records');
+
+    if (!$DB->get_manager()->table_exists($table)) {
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_type', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('recording_date', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('status', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         $DB->get_manager()->create_table($table);
@@ -191,7 +239,8 @@ function fetch_user_courses($userId) {
             'tasks' => fetch_course_tasks($userId, $course->id),
             'events' => fetch_course_events($userId, $course->id),
             'schedule' => fetch_course_schedule($course->id),
-            'exams' => fetch_course_exams($course->id)
+            'exams' => fetch_course_exams($course->id),
+            'zoomRecords' => fetch_course_zoom_records($course->id)
         );
         $userCourses[] = $courseData;
     }
@@ -330,9 +379,29 @@ function fetch_course_exams($courseId) {
     return array_values($exams); // Ensure the result is returned as an array
 }
 
+function fetch_course_zoom_records($courseId) {
+    global $DB;
+
+    $zoomSQL = "
+        SELECT
+            id,
+            courseid,
+            recording_type,
+            recording_name,
+            recording_date,
+            status
+        FROM
+            {mdl_zoom_records}
+        WHERE
+            courseid = :courseid
+    ";
+    $zoomRecords = $DB->get_records_sql($zoomSQL, array('courseid' => $courseId));
+    return array_values($zoomRecords); // Ensure the result is returned as an array
+}
+
 function set_json_headers() {
     header('Access-Control-Allow-Origin: http://localhost:3000');
-    header('Access-Control-Allow-Methods: GET, POST, DELETE'); // Adjusted to allow DELETE
+    header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE'); // Adjusted to allow PATCH and DELETE
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 }
@@ -341,3 +410,4 @@ function handle_invalid_request() {
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
+?>
