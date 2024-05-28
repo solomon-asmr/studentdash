@@ -1,15 +1,15 @@
-import React, {useState, useEffect} from 'react';
-import {Card, Container, Row, Col, Table, Image, Button, Form} from 'react-bootstrap';
-import {useParams, Link} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Card, Container, Row, Col, Table, Image, Button, Form } from 'react-bootstrap';
+import { useParams, Link } from 'react-router-dom';
 import './CourseDetails.css';
 import ChartModal from "./ChartModal";
 import SchedModal from "./SchedModal";
 
-function CourseDetails({studentInfo}) {
-    const {courseId} = useParams();
+function CourseDetails({ studentInfo }) {
+    const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
-    const [exams, setExams] = useState([]);
+    const [exams, setExams] = useState([]); // Initialize as an empty array
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -33,16 +33,20 @@ function CourseDetails({studentInfo}) {
             if (course) {
                 setTasks(course.tasks || []);
                 setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
-                setExams(course.exams || []);
                 setCourseName(course.fullname || '');
             }
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Fetched data:', data); // Add this line
                     setPersonalActivities(data.personalActivities || []);
+                    setExams(data.exams || []);
+                    setIsLoading(false);
                 })
-                .catch(error => console.error('Error fetching personal activities:', error));
-            setIsLoading(false);
+                .catch(error => {
+                    console.error('Error fetching personal activities:', error);
+                    setIsLoading(false);
+                });
         }
     }, [studentInfo, courseId]);
 
@@ -77,8 +81,8 @@ function CourseDetails({studentInfo}) {
     };
 
     const handleInputChange = (e) => {
-        const {name, value} = e.target;
-        setNewTask({...newTask, [name]: value});
+        const { name, value } = e.target;
+        setNewTask({ ...newTask, [name]: value });
     };
 
     const handleSubmit = (e) => {
@@ -128,7 +132,7 @@ function CourseDetails({studentInfo}) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({taskId}),
+            body: JSON.stringify({ taskId }),
         })
             .then(response => response.json())
             .then(data => {
@@ -148,19 +152,17 @@ function CourseDetails({studentInfo}) {
     }
 
     return (
-        <Container className="courseDetailContainer" fluid style={{padding: '20px', maxWidth: '1200px'}}>
-            <Container fluid style={{backgroundColor: 'white', borderRadius: '10px', position: "relative"}}>
+        <Container className="courseDetailContainer" fluid style={{ padding: '20px', maxWidth: '1200px' }}>
+            <Container fluid style={{ backgroundColor: 'white', borderRadius: '10px', position: "relative" }}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to="/back">
-                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50"
-                               alt="collapse content" className="hover-effect-image"/>
+                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50" alt="collapse content" className="hover-effect-image" />
                     </Link>
 
-                    <h2 style={{color: "black", fontWeight: "bolder"}}>{courseName}</h2>
+                    <h2 style={{ color: "black", fontWeight: "bolder" }}>{courseName}</h2>
 
                     <Link to="/back">
-                        <Image className="keyboard_backspace hover-effect-image"
-                               src="../../frontend/dashboard/build/keyboard_backspace.png" width="50" height="30" alt="nothing"/>
+                        <Image className="keyboard_backspace hover-effect-image" src="../../frontend/dashboard/build/keyboard_backspace.png" width="50" height="30" alt="nothing" />
                     </Link>
                 </Card.Header>
 
@@ -182,8 +184,8 @@ function CourseDetails({studentInfo}) {
                                 <th>הרצאות שהועברו</th>
                             </tr>
                             {schedule.map((lecture, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.5}s`}}>
-                                    <td>{lecture.type || 'הרצאות'}</td>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
+                                    <td>{lecture.role || 'הרצאות'}</td>
                                     <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
                                     <td>{lecture.day_of_week || 'יום חמישי'}</td>
                                     <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>
@@ -222,7 +224,7 @@ function CourseDetails({studentInfo}) {
                                 <th></th>
                             </tr>
                             {tasks.map((task, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
                                     <td>{index + 1}</td>
                                     <td>{task.task_type}</td>
                                     <td>{task.task_name}</td>
@@ -231,35 +233,28 @@ function CourseDetails({studentInfo}) {
                                     <td>{task.task_status}</td>
 
                                     <td>
-                                        <Button href={task.url} style={{border: 'none'}} variant="light">
-                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"
-                                                   className="hover-effect-image"/>
+                                        <Button href={task.url} style={{ border: 'none' }} variant="light">
+                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
                                         </Button>
                                     </td>
 
-                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="מסמך המטלה"
-                                               className="hover-effect-image"/>
-                                    </td>
+                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="מסמך המטלה" className="hover-effect-image" /></td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light" onClick={() => handleShowSchedModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="הקדשת זמן ביומן"
-                                                   className="hover-effect-image"/>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowSchedModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="הקדשת זמן ביומן" className="hover-effect-image" />
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light" onClick={() => handleShowPieModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="אחוז משלימי המטלה"
-                                                   className="hover-effect-image"/>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowPieModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="אחוז משלימי המטלה" className="hover-effect-image" />
                                         </Button>
                                     </td>
-
                                 </tr>
                             ))}
                             {personalActivities.map((activity, index) => (
-                                <tr key={index + tasks.length} className="table-row"
-                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                <tr key={index + tasks.length} className="table-row" style={{ animationDelay: `${(index + tasks.length) * 0.5}s` }}>
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>personal activity</td>
                                     <td>{activity.taskname}</td>
@@ -268,12 +263,9 @@ function CourseDetails({studentInfo}) {
                                     <td>{activity.status}</td>
                                     <td></td>
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
-                                                onClick={() => handleDelete(activity.id)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path
-                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleDelete(activity.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
                                             </svg>
                                         </Button>
                                     </td>
@@ -283,7 +275,7 @@ function CourseDetails({studentInfo}) {
                             ))}
                         </Table>
                         <div className="add-activity">
-                            <span onClick={handleShowForm} style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
+                            <span onClick={handleShowForm} style={{ cursor: 'pointer' }}> &#65291; הוספת משימה אישית</span>
                         </div>
                         {showForm && (
                             <Form className="activityAdderForm" onSubmit={handleSubmit} style={{
@@ -301,7 +293,7 @@ function CourseDetails({studentInfo}) {
                                 boxShadow: '10 4px 8px rgba(0, 0.8, 0.7, 0.9)'
                             }}>
                                 <Form.Group controlId="taskName">
-                                    <Form.Label style={{fontWeight: 'bold'}}>שם המטלה</Form.Label>
+                                    <Form.Label style={{ fontWeight: 'bold' }}>שם המטלה</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="taskName"
@@ -309,48 +301,47 @@ function CourseDetails({studentInfo}) {
                                         onChange={handleInputChange}
                                         placeholder="personal activity"
                                         required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
+                                        style={{ marginBottom: '10px', borderColor: '#ced4da' }}
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="dueDate">
-                                    <Form.Label style={{fontWeight: 'bold'}}>מועד אחרון</Form.Label>
+                                    <Form.Label style={{ fontWeight: 'bold' }}>מועד אחרון</Form.Label>
                                     <Form.Control
                                         type="date"
                                         name="dueDate"
                                         value={newTask.dueDate}
                                         onChange={handleInputChange}
                                         required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
+                                        style={{ marginBottom: '10px', borderColor: '#ced4da' }}
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="modifyDate">
-                                    <Form.Label style={{fontWeight: 'bold'}}>מועד בפועל</Form.Label>
+                                    <Form.Label style={{ fontWeight: 'bold' }}>מועד בפועל</Form.Label>
                                     <Form.Control
                                         type="date"
                                         name="modifyDate"
                                         value={newTask.modifyDate}
                                         onChange={handleInputChange}
                                         required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
+                                        style={{ marginBottom: '10px', borderColor: '#ced4da' }}
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="status">
-                                    <Form.Label style={{fontWeight: 'bold'}}>סטטוס</Form.Label>
+                                    <Form.Label style={{ fontWeight: 'bold' }}>סטטוס</Form.Label>
                                     <Form.Control
                                         type="text"
                                         name="status"
                                         value={newTask.status}
                                         onChange={handleInputChange}
                                         required
-                                        style={{marginBottom: '20px', borderColor: '#ced4da'}}
+                                        style={{ marginBottom: '20px', borderColor: '#ced4da' }}
                                     />
                                 </Form.Group>
-                                <Button variant="primary" type="submit" style={{width: '100px', fontWeight: 'bold'}}>
+                                <Button variant="primary" type="submit" style={{ width: '100px', fontWeight: 'bold' }}>
                                     שמור
                                 </Button>
                             </Form>
                         )}
-
                     </Col>
                 </Row>
 
@@ -365,16 +356,20 @@ function CourseDetails({studentInfo}) {
                                 <th>משך</th>
                                 <th>מיקום</th>
                             </tr>
-                            {exams.map((exam, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
-                                    <td>{index + 1 || '1'}</td>
-                                    <td>{exam.exam_name || 'מבחן אמצע'}</td>
-                                    <td>{exam.exam_date || '22/02/24'}</td>
-                                    <td>{exam.exam_time || '09:00'} </td>
-                                    <td>{exam.exam_duration || '2'} שעות</td>
-                                    <td>{exam.exam_location || 'מקוון'}</td>
+                            {Array.isArray(exams) && exams.length > 0 ? exams.map((exam, index) => (
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
+                                    <td>{index + 1}</td>
+                                    <td>{exam.exam_type}</td>
+                                    <td>{new Date(exam.exam_date * 1000).toLocaleDateString()}</td>
+                                    <td>{exam.exam_time}</td>
+                                    <td>{exam.duration}</td>
+                                    <td>{exam.location}</td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan="6">No exams found.</td>
+                                </tr>
+                            )}
                         </Table>
                     </Col>
                     <Col className="responsive-table-col" md={6} sm={12}>
@@ -430,10 +425,9 @@ function CourseDetails({studentInfo}) {
                         </Table>
                     </Col>
                 </Row>
-
             </Container>
-            <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData}/>
-            <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData}/>
+            <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData} />
+            <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData} />
         </Container>
     );
 }
