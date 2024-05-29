@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $status = $input['status'];
 
     try {
-        $DB->update_record('mdl_zoom_records', (object) ['id' => $zoomRecordId, 'status' => $status]);
+        $DB->update_record('mdl_zoom_records', (object)['id' => $zoomRecordId, 'status' => $status]);
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -130,7 +130,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     handle_invalid_request();
 }
 
-function ensure_personal_activities_table_exists() {
+function ensure_personal_activities_table_exists()
+{
     global $DB;
 
     $table = new xmldb_table('personal_activities');
@@ -149,7 +150,8 @@ function ensure_personal_activities_table_exists() {
     }
 }
 
-function ensure_exams_table_exists() {
+function ensure_exams_table_exists()
+{
     global $DB;
 
     $table = new xmldb_table('exams');
@@ -168,7 +170,8 @@ function ensure_exams_table_exists() {
     }
 }
 
-function ensure_zoom_records_table_exists() {
+function ensure_zoom_records_table_exists()
+{
     global $DB;
 
     $table = new xmldb_table('zoom_records');
@@ -186,7 +189,8 @@ function ensure_zoom_records_table_exists() {
     }
 }
 
-function fetch_user_grades($userId) {
+function fetch_user_grades($userId)
+{
     global $DB;
 
     $gradesSQL = "
@@ -204,7 +208,8 @@ function fetch_user_grades($userId) {
     return $DB->get_records_sql($gradesSQL, array('userid' => $userId));
 }
 
-function calculate_average_grade($grades) {
+function calculate_average_grade($grades)
+{
     $totalGrades = 0;
     $count = count($grades);
 
@@ -218,7 +223,8 @@ function calculate_average_grade($grades) {
     }
 }
 
-function fetch_user_courses($userId) {
+function fetch_user_courses($userId)
+{
     global $DB;
 
     $courses = enrol_get_all_users_courses($userId);
@@ -248,7 +254,8 @@ function fetch_user_courses($userId) {
     return $userCourses;
 }
 
-function fetch_course_tasks($userId, $courseId) {
+function fetch_course_tasks($userId, $courseId)
+{
     global $DB;
 
     $tasks = array();
@@ -309,7 +316,8 @@ function fetch_course_tasks($userId, $courseId) {
     return $tasks;
 }
 
-function fetch_course_events($userId, $courseId) {
+function fetch_course_events($userId, $courseId)
+{
     global $DB;
 
     $start = strtotime('today');
@@ -330,7 +338,8 @@ function fetch_course_events($userId, $courseId) {
     return $courseEvents;
 }
 
-function fetch_course_schedule($courseId) {
+function fetch_course_schedule($courseId)
+{
     global $DB;
 
     // Assuming events in mdl_event table are used to schedule lectures and classes
@@ -358,7 +367,8 @@ function fetch_course_schedule($courseId) {
     return array_values($schedule); // Ensure the result is returned as an array
 }
 
-function fetch_course_exams($courseId) {
+function fetch_course_exams($courseId)
+{
     global $DB;
 
     $examSQL = "
@@ -371,7 +381,7 @@ function fetch_course_exams($courseId) {
             duration,
             location
         FROM
-            {mdl_exams}
+            {exams}
         WHERE
             courseid = :courseid
     ";
@@ -379,7 +389,8 @@ function fetch_course_exams($courseId) {
     return array_values($exams); // Ensure the result is returned as an array
 }
 
-function fetch_course_zoom_records($courseId) {
+function fetch_course_zoom_records($courseId)
+{
     global $DB;
 
     $zoomSQL = "
@@ -391,7 +402,7 @@ function fetch_course_zoom_records($courseId) {
             recording_date,
             status
         FROM
-            {mdl_zoom_records}
+            {zoom_records}
         WHERE
             courseid = :courseid
     ";
@@ -399,15 +410,17 @@ function fetch_course_zoom_records($courseId) {
     return array_values($zoomRecords); // Ensure the result is returned as an array
 }
 
-function set_json_headers() {
+function set_json_headers()
+{
     header('Access-Control-Allow-Origin: http://localhost:3000');
     header('Access-Control-Allow-Methods: GET, POST, PATCH, DELETE'); // Adjusted to allow PATCH and DELETE
     header('Access-Control-Allow-Headers: Content-Type'); // Adjust if needed
     header('Content-Type: application/json');
 }
 
-function handle_invalid_request() {
+function handle_invalid_request()
+{
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-?>
+
