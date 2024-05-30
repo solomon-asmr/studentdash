@@ -13,7 +13,6 @@ function CourseDetails({ studentInfo }) {
     const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newTask, setNewTask] = useState({
         taskName: '',
@@ -43,11 +42,9 @@ function CourseDetails({ studentInfo }) {
                     setPersonalActivities(data.personalActivities || []);
                     setExams(data.exams || []);
                     setZoomRecords(data.zoomRecords || []);
-                    setIsLoading(false);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    setIsLoading(false);
                 });
         }
     }, [studentInfo, courseId]);
@@ -138,7 +135,13 @@ function CourseDetails({ studentInfo }) {
             },
             body: JSON.stringify({ taskId }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
             .then(data => {
                 if (data.success) {
                     setPersonalActivities(personalActivities.filter(activity => activity.id !== taskId));
@@ -151,6 +154,7 @@ function CourseDetails({ studentInfo }) {
             });
     };
 
+
     const toggleZoomRecordStatus = (id, currentStatus) => {
         const newStatus = currentStatus === 'watched' ? 'unwatched' : 'watched';
 
@@ -161,7 +165,13 @@ function CourseDetails({ studentInfo }) {
             },
             body: JSON.stringify({ zoomRecordId: id, status: newStatus }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
             .then(data => {
                 if (data.success) {
                     setZoomRecords(zoomRecords.map(record =>
@@ -175,6 +185,7 @@ function CourseDetails({ studentInfo }) {
                 console.error('Error:', error);
             });
     };
+
     const formatTime = (startTime, duration) => {
         if (!startTime || !duration) return '';
 
@@ -195,9 +206,6 @@ function CourseDetails({ studentInfo }) {
         // Format the time range
         return `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${endHours}:${endMinutes}`;
     };
-    if (isLoading) {
-        return <div><h2>Loading...</h2></div>;
-    }
 
     return (
         <Container className="courseDetailContainer" fluid style={{ padding: '20px', maxWidth: '1200px' }}>

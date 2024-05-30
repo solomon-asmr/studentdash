@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $task->courseid = $activity['courseId'];
         $task->taskname = $activity['taskName'];
         $task->duedate = strtotime($activity['dueDate']);
-        $task->modifydate = strtotime($activity['modifyDate']);
+        $task->modifydate = strtotime($activity['ModifyDate']);
         $task->status = $activity['status'];
 
         try {
@@ -121,7 +121,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $status = $input['status'];
 
     try {
-        $DB->update_record('mdl_zoom_records', (object)['id' => $zoomRecordId, 'status' => $status]);
+        $DB->update_record('zoom_records', (object)['id' => $zoomRecordId, 'status' => $status]);
+        echo json_encode(['success' => true]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    // Handle DELETE request for deleting personal activities
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    if (empty($input['taskId'])) {
+        echo json_encode(['success' => false, 'error' => 'Invalid input']);
+        exit;
+    }
+
+    $taskId = $input['taskId'];
+
+    try {
+        $DB->delete_records('personal_activities', ['id' => $taskId]);
         echo json_encode(['success' => true]);
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -423,4 +440,3 @@ function handle_invalid_request()
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-
