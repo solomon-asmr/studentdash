@@ -200,9 +200,16 @@ function ensure_zoom_records_table_exists()
         $table->add_field('recording_name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
         $table->add_field('recording_date', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('status', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('zoomurl', XMLDB_TYPE_CHAR, '255', null, null, null, null); // Add the new column
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         $DB->get_manager()->create_table($table);
+    } else {
+        // Add the new column if the table already exists
+        if (!$DB->get_manager()->field_exists($table, 'zoomurl')) {
+            $field = new xmldb_field('zoomurl', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'status');
+            $DB->get_manager()->add_field($table, $field);
+        }
     }
 }
 

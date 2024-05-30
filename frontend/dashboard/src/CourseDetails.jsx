@@ -155,7 +155,7 @@ function CourseDetails({ studentInfo }) {
     };
 
 
-    const toggleZoomRecordStatus = (id, currentStatus) => {
+    const toggleZoomRecordStatus = (id, currentStatus, zoomurl) => {
         const newStatus = currentStatus === 'watched' ? 'unwatched' : 'watched';
 
         fetch('/local/studentdash/ajax/fetch_data.php', {
@@ -177,6 +177,10 @@ function CourseDetails({ studentInfo }) {
                     setZoomRecords(zoomRecords.map(record =>
                         record.id === id ? { ...record, status: newStatus } : record
                     ));
+                    // Open the zoomurl if it exists
+                    if (zoomurl) {
+                        window.open(zoomurl, '_blank');
+                    }
                 } else {
                     console.error('Failed to update Zoom record status:', data.error);
                 }
@@ -185,6 +189,7 @@ function CourseDetails({ studentInfo }) {
                 console.error('Error:', error);
             });
     };
+
 
     const formatTime = (startTime, duration) => {
         if (!startTime || !duration) return '';
@@ -450,12 +455,9 @@ function CourseDetails({ studentInfo }) {
                                         {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
                                     </td>
                                     <td>
-                                        <Button variant="link"
-                                                onClick={() => toggleZoomRecordStatus(record.id, record.status)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path
-                                                    d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+                                        <Button variant="link" onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
                                             </svg>
                                         </Button>
                                     </td>
