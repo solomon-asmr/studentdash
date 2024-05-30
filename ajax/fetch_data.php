@@ -32,11 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $exams = $DB->get_records('exams', ['courseid' => $courseId]);
     $zoomRecords = $DB->get_records('zoom_records', ['courseid' => $courseId]);
 
-    // Debugging: Log fetched data to error log
-    error_log("Personal Activities: " . json_encode($personalActivities));
-    error_log("Exams: " . json_encode($exams));
-    error_log("Zoom Records: " . json_encode($zoomRecords));
-
     // Initialize data array
     $data = array(
         'studentID' => $user->idnumber,
@@ -55,8 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     // Output the response data as JSON
     echo json_encode($data);
-
-} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+}elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle POST request for adding personal activities and zoom records
     $input = json_decode(file_get_contents('php://input'), true);
 

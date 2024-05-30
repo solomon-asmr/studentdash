@@ -39,7 +39,11 @@ function CourseDetails({ studentInfo }) {
                 .then(response => response.json())
                 .then(data => {
                     console.log('Fetched data:', data); // Debugging: Log fetched data
-                    setPersonalActivities(data.personalActivities || []);
+                    setPersonalActivities((data.personalActivities || []).map(activity => ({
+                        ...activity,
+                        duedate: new Date(activity.duedate * 1000).toLocaleDateString(),
+                        modifydate: new Date(activity.modifydate * 1000).toLocaleDateString()
+                    })));
                     setExams(data.exams || []);
                     setZoomRecords(data.zoomRecords || []);
                 })
@@ -95,8 +99,8 @@ function CourseDetails({ studentInfo }) {
                 personalActivity: {
                     courseId,
                     taskName: newTask.taskName,
-                    dueDate: newTask.dueDate,
-                    modifyDate: newTask.modifyDate,
+                    dueDate: new Date(newTask.dueDate).getTime() / 1000,  // Store as Unix timestamp
+                    modifyDate: new Date(newTask.modifyDate).getTime() / 1000,  // Store as Unix timestamp
                     status: newTask.status
                 }
             }),
@@ -107,8 +111,8 @@ function CourseDetails({ studentInfo }) {
                     setPersonalActivities([...personalActivities, {
                         id: data.task_id,
                         taskname: newTask.taskName,
-                        duedate: newTask.dueDate,
-                        modifydate: newTask.modifyDate,
+                        duedate: new Date(newTask.dueDate).toLocaleDateString(),  // Format date for display
+                        modifydate: new Date(newTask.modifyDate).toLocaleDateString(),  // Format date for display
                         status: newTask.status
                     }]);
                     setNewTask({
@@ -319,8 +323,8 @@ function CourseDetails({ studentInfo }) {
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>personal activity</td>
                                     <td>{activity.taskname}</td>
-                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
-                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
+                                    <td>{activity.duedate}</td>
+                                    <td>{activity.modifydate}</td>
                                     <td>{activity.status}</td>
                                     <td></td>
                                     <td>
@@ -334,6 +338,7 @@ function CourseDetails({ studentInfo }) {
                                     <td></td>
                                 </tr>
                             ))}
+
                         </Table>
                         <div className="add-activity">
                             <span onClick={handleShowForm} style={{ cursor: 'pointer' }}> &#65291; הוספת משימה אישית</span>
