@@ -45,7 +45,7 @@ function CourseCard({course, isVisible}) {
                     </Row>
                     <Row>
                         <Col className="d-flex justify-content-between card-column">
-                            <h2>{course.events[0] ? getDaysDifference(new Date(course.events[0].timestart), new Date()) : '0'}</h2>
+                            <h2>{course.events[0] ? getDaysDifference(new Date(course.events[course.events.length - 1].timestart), new Date()) : '0'}</h2>
                             <span>ימים למועד א</span>
                         </Col>
                         <Col className="d-flex justify-content-between card-column">

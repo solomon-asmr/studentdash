@@ -7,8 +7,9 @@ import SchedModal from "./SchedModal";
 
 function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const {courseId} = useParams();
+    const [course, setCourse] = useState({});
     const [tasks, setTasks] = useState([]);
-    const [schedule, setSchedule] = useState([]);
+    const [schedule, setSchedule] = useState({});
     const [exams, setExams] = useState([]);
     const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
@@ -28,11 +29,14 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const [showSchedModal, setShowSchedModal] = useState(false);
 
     useEffect(() => {
+        console.log('studentInfo:', studentInfo);
+        console.log('courseId:', courseId);
         if (studentInfo && courseId) {
             const course = studentInfo.courses.find(c => c.id === courseId);
             if (course) {
+                setCourse(course);
                 setTasks(course.tasks || []);
-                setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
+                setSchedule(course.schedule || {});
                 setCourseName(course.fullname || '');
                 setExams(course.exams || []);
             }
@@ -248,22 +252,37 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             margin: '10px',
                             borderRadius: '15px'
                         }}>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>יום בשבוע</th>
-                                <th>שעות</th>
-                                <th>הרצאות שהועברו</th>
-                            </tr>
-                            {schedule.map((lecture, index) => (
-                                <tr key={index} style={{animationDelay: `${index * 0.5}s`}}>
-                                    <td>{lecture.role || 'הרצאות'}</td>
-                                    <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
-                                    <td>{lecture.day_of_week || 'יום חמישי'}</td>
-                                    <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>
+                            {course && (
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>שם המרצה</th>
+                                    <th>יום בשבוע</th>
+                                    <th>שעות</th>
+                                    <th>הרצאות שהועברו</th>
                                 </tr>
-                            ))}
+                                </thead>
+                            )}
+                            {course.schedule && (
+                                <tr>
+                                    <td>Lectures</td>
+                                    <td>{course.lecturer}</td>
+                                    <td>{schedule.lectures.day}</td>
+                                    <td>{schedule.lectures.time}</td>
+                                    <td>{schedule.lectures.done}/13</td>
+                                </tr>
+                            )}
+                            {course.schedule && (
+                                <tr>
+                                    <td>Practices</td>
+                                    <td>{course.practitioner || 'practitioner name'}</td>
+                                    <td>{schedule.practices.day}</td>
+                                    <td>{schedule.practices.time}</td>
+                                    <td>{schedule.practices.done}/13</td>
+                                </tr>
+                            )}
                         </Table>
+
                     </Col>
                 </Row>
 
