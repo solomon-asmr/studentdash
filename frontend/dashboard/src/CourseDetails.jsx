@@ -13,7 +13,6 @@ function CourseDetails({ studentInfo, downloadAssignmentFiles }) {
     const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newTask, setNewTask] = useState({
         taskName: '',
@@ -291,7 +290,7 @@ function CourseDetails({ studentInfo, downloadAssignmentFiles }) {
                                 <th></th>
                             </tr>
                             {tasks.map((task, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
                                     <td>{index + 1}</td>
                                     <td>{task.task_type}</td>
                                     <td>{task.task_name}</td>
