@@ -278,14 +278,19 @@ function fetch_user_courses($userId)
     foreach ($courses as $course) {
         // Fetch lecturer details
         $context = context_course::instance($course->id);
-        $roles = get_role_users(3, $context);  // Assuming role id 3 for lecturers
-        $lecturer = reset($roles);  // Get the first lecturer found
+        $roles_lecturers = get_role_users(3, $context);  // Assuming role id 3 for lecturers
+        $lecturer = reset($roles_lecturers);  // Get the first lecturer found
+
+        // Fetch practitioner details
+        $roles_practitioners = get_role_users(4, $context);  // Assuming role id 4 for practitioners
+        $practitioner = reset($roles_practitioners);  // Get the first practitioner found
 
         $courseData = array(
             'id' => $course->id,
             'fullname' => $course->fullname,
             'lecturer' => fullname($lecturer),
             'lectureremail' => $lecturer->email,
+            'practitioner' => fullname($practitioner),
             'url' => (new moodle_url('/course/view.php', array('id' => $course->id)))->out(false),
             'tasks' => fetch_course_tasks($userId, $course->id),
             'events' => fetch_course_events($userId, $course->id),
