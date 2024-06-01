@@ -5,7 +5,7 @@ import './CourseDetails.css';
 import ChartModal from "./ChartModal";
 import SchedModal from "./SchedModal";
 
-function CourseDetails({studentInfo}) {
+function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const {courseId} = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
@@ -311,12 +311,13 @@ function CourseDetails({studentInfo}) {
                                         </Button>
                                     </td>
 
-                                    <tr>
-                                        <Button onClick={() => downloadAssignmentFiles(task.task_id)}>Download File
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => downloadAssignmentFiles(task.task_id)}>
                                             <Image src="../../frontend/dashboard/build/developer_guide.svg"
                                                    alt="Download Assignment Files" className="hover-effect-image"/>
                                         </Button>
-                                    </tr>
+                                    </td>
 
                                     <td>
                                         <Button style={{border: 'none'}} variant="light"
@@ -360,7 +361,7 @@ function CourseDetails({studentInfo}) {
                             ))}
                         </Table>
                         <div className="add-activity">
-                            <span onClick={handleShowForm} style={{ cursor: 'pointer' }}> &#65291; הוספת משימה אישית</span>
+                            <span onClick={handleShowForm} style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
                         </div>
                         {showForm && (
                             <Form className="activityAdderForm" onSubmit={handleSubmit} style={{
@@ -479,9 +480,12 @@ function CourseDetails({studentInfo}) {
                                         {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
                                     </td>
                                     <td>
-                                        <Button variant="link" onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+                                        <Button variant="link"
+                                                onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                                 width="24px" fill="#5f6368">
+                                                <path
+                                                    d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
                                             </svg>
                                         </Button>
                                     </td>
