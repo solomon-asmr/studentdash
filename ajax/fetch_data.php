@@ -22,18 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $taskId = $_GET['taskid'];
         $url = get_assignment_file_url($taskId);
         echo json_encode(['url' => $url]);
-        exit;}
+        exit;
+    }
         // Fetch user details
         $user = $DB->get_record('user', array('id' => $USER->id));
 
         // Fetch grades for the current user
         $grades = fetch_user_grades($USER->id);
 
+    $user = fetch_user_with_custom_fields($USER->id);
         // Calculate average grade for the user
         $averageGrade = calculate_average_grade($grades);
 
         // Fetch personal activities, exams, and zoom records for the user
-        $courseId = $_GET['courseId'];
+    $courseId = $_GET['courseId'] ?? null;
         $personalActivities = $DB->get_records('personal_activities', ['userid' => $USER->id, 'courseid' => $courseId]);
         $exams = $DB->get_records('exams', ['courseid' => $courseId]);
         $zoomRecords = $DB->get_records('zoom_records', ['courseid' => $courseId]);
@@ -150,6 +152,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
         handle_invalid_request();
     }
+function fetch_user_with_custom_fields($userId)
+{
+    global $DB;
+
+    $sql = "SELECT u.*,
+                   max(CASE WHEN uf.shortname = 'major' THEN uid.data ELSE NULL END) AS major,
+                   max(CASE WHEN uf.shortname = 'academic_year' THEN uid.data ELSE NULL END) AS academic_year
+            FROM {user} u
+            LEFT JOIN {user_info_data} uid ON uid.userid = u.id
+            LEFT JOIN {user_info_field} uf ON uf.id = uid.fieldid
+            WHERE u.id = :userid
+            GROUP BY u.id";
+
+    return $DB->get_record_sql($sql, ['userid' => $userId]);
+}
 
     function ensure_personal_activities_table_exists()
     {
@@ -312,7 +329,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'task_status' => $has_submitted,
                 'modify_date' => !empty($user_submission) ? gmdate("d-m-Y", $user_submission->timemodified) : null,
                 'submission_percentage' => $submission_percentage,
-                'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false)
+                'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false),
+                    'fileurl' => get_assignment_file_url($cm->id)
             ];
         }
 
@@ -365,7 +383,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         return $courseEvents;
     }
+function get_assignment_file_url($courseModuleId) {
+    global $CFG;
 
+    require_once($CFG->dirroot . '/mod/assign/locallib.php');
+
+    $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
+    $context = context_module::instance($cm->id);
+
+    $fs = get_file_storage();
+    // Adjust file area to 'introattachment'
+    $files = $fs->get_area_files($context->id, 'mod_assign', 'introattachment', 0, 'itemid, filepath, filename', false);
+
+    foreach ($files as $file) {
+        if ($file->is_directory()) continue; // Skip directories
+
+        $url = moodle_url::make_pluginfile_url(
+            $file->get_contextid(),
+            $file->get_component(),
+            $file->get_filearea(),
+            $file->get_itemid(),
+            $file->get_filepath(),
+            $file->get_filename(),
+            true // Forces the download
+        );
+
+        return $url->out(false);
+    }
+
+    return null; // Return null if no files were found
+}
     function fetch_course_schedule($courseId)
     {
         global $DB;
@@ -438,23 +485,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         return array_values($zoomRecords); // Ensure the result is returned as an array
     }
 
-
-    function fetch_user_with_custom_fields($userId)
-    {
-        global $DB;
-
-        $sql = "SELECT u.*,
-                   max(CASE WHEN uf.shortname = 'major' THEN uid.data ELSE NULL END) AS major,
-                   max(CASE WHEN uf.shortname = 'academic_year' THEN uid.data ELSE NULL END) AS academic_year
-            FROM {user} u
-            LEFT JOIN {user_info_data} uid ON uid.userid = u.id
-            LEFT JOIN {user_info_field} uf ON uf.id = uid.fieldid
-            WHERE u.id = :userid
-            GROUP BY u.id";
-
-        return $DB->get_record_sql($sql, ['userid' => $userId]);
-    }
-
     function fetch_course_role_users($courseId, $roleId)
     {
         global $DB;
@@ -468,37 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         return $DB->get_records_sql($sql, ['courseid' => $courseId, 'roleid' => $roleId]);
     }
 
-    function get_assignment_file_url($courseModuleId)
-    {
-        global $CFG;
 
-        require_once($CFG->dirroot . '/mod/assign/locallib.php');
-
-        $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
-        $context = context_module::instance($cm->id);
-
-        $fs = get_file_storage();
-        // Adjust file area to 'introattachment'
-        $files = $fs->get_area_files($context->id, 'mod_assign', 'introattachment', 0, 'itemid, filepath, filename', false);
-
-        foreach ($files as $file) {
-            if ($file->is_directory()) continue; // Skip directories
-
-            $url = moodle_url::make_pluginfile_url(
-                $file->get_contextid(),
-                $file->get_component(),
-                $file->get_filearea(),
-                $file->get_itemid(),
-                $file->get_filepath(),
-                $file->get_filename(),
-                true // Forces the download
-            );
-
-            return $url->out(false);
-        }
-
-        return null; // Return null if no files were found
-    }
 
     function set_json_headers()
     {
