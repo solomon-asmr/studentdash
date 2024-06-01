@@ -3,8 +3,9 @@ import { Card, Container, Row, Col, Table, Image, Button, Form } from 'react-boo
 import { useParams, Link } from 'react-router-dom';
 import './CourseDetails.css';
 import ChartModal from "./ChartModal";
+import SchedModal from "./SchedModal";
 
-function CourseDetails({ studentInfo }) {
+function CourseDetails({ studentInfo, downloadAssignmentFiles }) {
     const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
@@ -20,8 +21,11 @@ function CourseDetails({ studentInfo }) {
         status: ''
     });
 
-    const [modalData, setModalData] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [pieModalData, setPieModalData] = useState(null);
+    const [showPieModal, setShowPieModal] = useState(false);
+
+    const [schedModalData, setSchedModalData] = useState(null);
+    const [showSchedModal, setShowSchedModal] = useState(false);
 
     useEffect(() => {
         if (studentInfo && courseId) {
@@ -42,30 +46,30 @@ function CourseDetails({ studentInfo }) {
         }
     }, [studentInfo, courseId]);
 
-    const handleShowModal = (assignment) => {
+    const handleShowPieModal = (assignment) => {
         const submitted = assignment.submission_percentage;
         const notSubmitted = 100 - submitted;
-        setModalData({
+        setPieModalData({
             assignmentname: assignment.assignmentname,
             submitted,
             notSubmitted,
         });
-        setShowModal(true);
+        setShowPieModal(true);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setModalData(null);
+    const handleClosePieModal = () => {
+        setShowPieModal(false);
+        setPieModalData(null);
     };
 
-    const handleAddToCalendar = (title, start, end) => {
-        const eventTitle = encodeURIComponent('Your Event Title');
-        const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
-        const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+    const handleShowSchedModal = (task) => {
+        setSchedModalData(task.task_name);
+        setShowSchedModal(true);
+    };
 
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}`;
-
-        window.location.href = calendarUrl;
+    const handleCloseSchedModal = () => {
+        setShowSchedModal(false);
+        setSchedModalData(null);
     };
 
     const handleShowForm = () => {
@@ -148,19 +152,28 @@ function CourseDetails({ studentInfo }) {
             <Container fluid style={{ backgroundColor: 'white', borderRadius: '10px', position: "relative" }}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to="/back">
-                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50" alt="collapse content" className="hover-effect-image" />
+                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50"
+                               alt="collapse content" className="hover-effect-image" />
                     </Link>
 
                     <h2 style={{ color: "black", fontWeight: "bolder" }}>{courseName}</h2>
 
                     <Link to="/back">
-                        <Image className="keyboard_backspace hover-effect-image" src="../../frontend/dashboard/build/keyboard_backspace.png" width="50" height="30" alt="nothing" />
+                        <Image className="keyboard_backspace hover-effect-image"
+                               src="../../frontend/dashboard/build/keyboard_backspace.png" width="50" height="30" alt="nothing" />
                     </Link>
                 </Card.Header>
 
                 <Row>
                     <Col>
-                        <Table responsive="sm" className="lecture-time" style={{ width: '60%', border: '1px solid transparent', textAlign: 'center', backgroundColor: 'rgb(255, 192, 0)', margin: '10px', borderRadius: '15px' }}>
+                        <Table responsive="sm" className="lecture-time" style={{
+                            width: '60%',
+                            border: '1px solid transparent',
+                            textAlign: 'center',
+                            backgroundColor: 'rgb(255, 192, 0)',
+                            margin: '10px',
+                            borderRadius: '15px'
+                        }}>
                             <tr>
                                 <th></th>
                                 <th></th>
@@ -180,9 +193,22 @@ function CourseDetails({ studentInfo }) {
                     </Col>
                 </Row>
 
-                <Row className="subject-detail" style={{ backgroundColor: '#5ae4c6', border: '1px solid transparent', textAlign: 'center', borderRadius: '10px', margin: '10px', overflowX: 'auto' }}>
+                <Row className="subject-detail" style={{
+                    backgroundColor: '#5ae4c6',
+                    border: '1px solid transparent',
+                    textAlign: 'center',
+                    borderRadius: '10px',
+                    margin: '10px',
+                    overflowX: 'auto'
+                }}>
                     <Col>
-                        <Table responsive="sm" style={{ width: '95%', flex: 1, borderCollapse: 'collapse', backgroundColor: 'white', margin: '10px' }}>
+                        <Table responsive="sm" style={{
+                            width: '95%',
+                            flex: 1,
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'white',
+                            margin: '10px'
+                        }}>
                             <tr>
                                 <th>מס"ד</th>
                                 <th>סוג המטלה</th>
@@ -203,22 +229,32 @@ function CourseDetails({ studentInfo }) {
                                     <td>{task.due_date}</td>
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
+
                                     <td>
                                         <Button href={task.url} style={{ border: 'none' }} variant="light">
-                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
+                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"
+                                                   className="hover-effect-image" />
                                         </Button>
                                     </td>
-                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="" className="hover-effect-image" /></td>
+                                    <tr>
+                                        <Button onClick={() => downloadAssignmentFiles(task.task_id)}>Download File
+                                            <Image src="../../frontend/dashboard/build/developer_guide.svg" alt="Download Assignment Files" className="hover-effect-image" />
+                                        </Button>
+                                    </tr>
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleAddToCalendar()}>
-                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="" className="hover-effect-image" />
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowSchedModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="הקדשת זמן ביומן"
+                                                   className="hover-effect-image" />
                                         </Button>
                                     </td>
+
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="" className="hover-effect-image" />
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowPieModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="אחוז משלימי המטלה"
+                                                   className="hover-effect-image" />
                                         </Button>
                                     </td>
+
                                 </tr>
                             ))}
                         </Table>
@@ -374,7 +410,7 @@ function CourseDetails({ studentInfo }) {
                 <Row>
 
                     <Col>
-                        <h2 style={{textAlign:"center"}}>Personal Activities 👌</h2>
+                        <h2 style={{ textAlign: "center" }}>Personal Activities 👌</h2>
                         <Table responsive="sm" style={{
                             width: '95%',
                             flex: 1,
@@ -393,19 +429,19 @@ function CourseDetails({ studentInfo }) {
                             </tr>
                             {personalActivities.map((activity, index) => (
                                 <tr key={index + tasks.length} className="table-row"
-                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                    style={{ animationDelay: `${(index + tasks.length) * 0.5}s` }}>
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>{activity.taskname}</td>
                                     <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
                                     <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
                                     <td>{activity.status}</td>
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
+                                        <Button style={{ border: 'none' }} variant="light"
                                                 onClick={() => handleDelete(activity.id)}>
                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px"
                                                  viewBox="0 -960 960 960" width="24px" fill="#5f6368">
                                                 <path
-                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
                                             </svg>
                                         </Button>
                                     </td>
@@ -415,7 +451,8 @@ function CourseDetails({ studentInfo }) {
                     </Col>
                 </Row>
             </Container>
-            <ChartModal show={showModal} onHide={handleCloseModal} data={modalData} />
+            <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData} />
+            <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData} />
         </Container>
     );
 }
