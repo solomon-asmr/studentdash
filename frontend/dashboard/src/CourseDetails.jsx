@@ -13,7 +13,6 @@ function CourseDetails({studentInfo}) {
     const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newTask, setNewTask] = useState({
         taskName: '',
@@ -35,19 +34,22 @@ function CourseDetails({studentInfo}) {
                 setTasks(course.tasks || []);
                 setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
                 setCourseName(course.fullname || '');
+                setExams(course.exams || []);
             }
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
                 .then(data => {
                     console.log('Fetched data:', data); // Debugging: Log fetched data
-                    setPersonalActivities(data.personalActivities || []);
+                    setPersonalActivities((data.personalActivities || []).map(activity => ({
+                        ...activity,
+                        duedate: new Date(activity.duedate * 1000).toLocaleDateString(),
+                        modifydate: new Date(activity.modifydate * 1000).toLocaleDateString()
+                    })));
                     setExams(data.exams || []);
                     setZoomRecords(data.zoomRecords || []);
-                    setIsLoading(false);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
-                    setIsLoading(false);
                 });
         }
     }, [studentInfo, courseId]);
@@ -98,8 +100,8 @@ function CourseDetails({studentInfo}) {
                 personalActivity: {
                     courseId,
                     taskName: newTask.taskName,
-                    dueDate: newTask.dueDate,
-                    modifyDate: newTask.modifyDate,
+                    dueDate: new Date(newTask.dueDate).getTime() / 1000,  // Store as Unix timestamp
+                    modifyDate: new Date(newTask.modifyDate).getTime() / 1000,  // Store as Unix timestamp
                     status: newTask.status
                 }
             }),
@@ -110,8 +112,8 @@ function CourseDetails({studentInfo}) {
                     setPersonalActivities([...personalActivities, {
                         id: data.task_id,
                         taskname: newTask.taskName,
-                        duedate: newTask.dueDate,
-                        modifydate: newTask.modifyDate,
+                        duedate: new Date(newTask.dueDate).toLocaleDateString(),  // Format date for display
+                        modifydate: new Date(newTask.modifyDate).toLocaleDateString(),  // Format date for display
                         status: newTask.status
                     }]);
                     setNewTask({
@@ -138,7 +140,13 @@ function CourseDetails({studentInfo}) {
             },
             body: JSON.stringify({taskId}),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
             .then(data => {
                 if (data.success) {
                     setPersonalActivities(personalActivities.filter(activity => activity.id !== taskId));
@@ -151,7 +159,8 @@ function CourseDetails({studentInfo}) {
             });
     };
 
-    const toggleZoomRecordStatus = (id, currentStatus) => {
+
+    const toggleZoomRecordStatus = (id, currentStatus, zoomurl) => {
         const newStatus = currentStatus === 'watched' ? 'unwatched' : 'watched';
 
         fetch('/local/studentdash/ajax/fetch_data.php', {
@@ -161,12 +170,22 @@ function CourseDetails({studentInfo}) {
             },
             body: JSON.stringify({zoomRecordId: id, status: newStatus}),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
             .then(data => {
                 if (data.success) {
                     setZoomRecords(zoomRecords.map(record =>
                         record.id === id ? {...record, status: newStatus} : record
                     ));
+                    // Open the zoomurl if it exists
+                    if (zoomurl) {
+                        window.open(zoomurl, '_blank');
+                    }
                 } else {
                     console.error('Failed to update Zoom record status:', data.error);
                 }
@@ -175,6 +194,8 @@ function CourseDetails({studentInfo}) {
                 console.error('Error:', error);
             });
     };
+
+
     const formatTime = (startTime, duration) => {
         if (!startTime || !duration) {
             return '';
@@ -199,11 +220,6 @@ function CourseDetails({studentInfo}) {
         // Format the time range
         return `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${endHours}:${endMinutes}`;
     };
-
-
-    if (isLoading) {
-        return <div><h2>Loading...</h2></div>;
-    }
 
     return (
         <Container className="courseDetailContainer" fluid style={{padding: '20px', maxWidth: '1200px'}}>
@@ -290,25 +306,31 @@ function CourseDetails({studentInfo}) {
 
                                     <td>
                                         <Button href={task.url} style={{border: 'none'}} variant="light">
-                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה"
-                                                   className="hover-effect-image"/>
+                                            <Image src="../../frontend/dashboard/build/library_books.svg"
+                                                   alt="לעמוד המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
 
-                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="מסמך המטלה"
-                                               className="hover-effect-image"/></td>
+                                    <tr>
+                                        <Button onClick={() => downloadAssignmentFiles(task.task_id)}>Download File
+                                            <Image src="../../frontend/dashboard/build/developer_guide.svg"
+                                                   alt="Download Assignment Files" className="hover-effect-image"/>
+                                        </Button>
+                                    </tr>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light" onClick={() => handleShowSchedModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="הקדשת זמן ביומן"
-                                                   className="hover-effect-image"/>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowSchedModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg"
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light" onClick={() => handleShowPieModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="אחוז משלימי המטלה"
-                                                   className="hover-effect-image"/>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowPieModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg"
+                                                   alt="אחוז משלימי המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
                                 </tr>
@@ -319,8 +341,8 @@ function CourseDetails({studentInfo}) {
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>personal activity</td>
                                     <td>{activity.taskname}</td>
-                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
-                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
+                                    <td>{activity.duedate}</td>
+                                    <td>{activity.modifydate}</td>
                                     <td>{activity.status}</td>
                                     <td></td>
                                     <td>
@@ -338,7 +360,7 @@ function CourseDetails({studentInfo}) {
                             ))}
                         </Table>
                         <div className="add-activity">
-                            <span onClick={handleShowForm} style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
+                            <span onClick={handleShowForm} style={{ cursor: 'pointer' }}> &#65291; הוספת משימה אישית</span>
                         </div>
                         {showForm && (
                             <Form className="activityAdderForm" onSubmit={handleSubmit} style={{
@@ -457,12 +479,9 @@ function CourseDetails({studentInfo}) {
                                         {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
                                     </td>
                                     <td>
-                                        <Button variant="link"
-                                                onClick={() => toggleZoomRecordStatus(record.id, record.status)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path
-                                                    d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
+                                        <Button variant="link" onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
                                             </svg>
                                         </Button>
                                     </td>
