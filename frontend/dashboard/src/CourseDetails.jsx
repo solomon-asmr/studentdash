@@ -3,12 +3,14 @@ import { Card, Container, Row, Col, Table, Image, Button, Form } from 'react-boo
 import { useParams, Link } from 'react-router-dom';
 import './CourseDetails.css';
 import ChartModal from "./ChartModal";
+import SchedModal from "./SchedModal";
 
-function CourseDetails({ studentInfo }) {
+function CourseDetails({ studentInfo, downloadAssignmentFiles }) {
     const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
     const [exams, setExams] = useState([]);
+    const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -20,8 +22,11 @@ function CourseDetails({ studentInfo }) {
         status: ''
     });
 
-    const [modalData, setModalData] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+    const [pieModalData, setPieModalData] = useState(null);
+    const [showPieModal, setShowPieModal] = useState(false);
+
+    const [schedModalData, setSchedModalData] = useState(null);
+    const [showSchedModal, setShowSchedModal] = useState(false);
 
     useEffect(() => {
         if (studentInfo && courseId) {
@@ -29,43 +34,51 @@ function CourseDetails({ studentInfo }) {
             if (course) {
                 setTasks(course.tasks || []);
                 setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
-                setExams(course.exams || []);
                 setCourseName(course.fullname || '');
+                setExams(course.exams || []);
             }
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
                 .then(data => {
-                    setPersonalActivities(data.personalActivities || []);
+                    console.log('Fetched data:', data); // Debugging: Log fetched data
+                    setPersonalActivities((data.personalActivities || []).map(activity => ({
+                        ...activity,
+                        duedate: new Date(activity.duedate * 1000).toLocaleDateString(),
+                        modifydate: new Date(activity.modifydate * 1000).toLocaleDateString()
+                    })));
+                    setExams(data.exams || []);
+                    setZoomRecords(data.zoomRecords || []);
                 })
-                .catch(error => console.error('Error fetching personal activities:', error));
-            setIsLoading(false);
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
         }
     }, [studentInfo, courseId]);
 
-    const handleShowModal = (assignment) => {
+    const handleShowPieModal = (assignment) => {
         const submitted = assignment.submission_percentage;
         const notSubmitted = 100 - submitted;
-        setModalData({
+        setPieModalData({
             assignmentname: assignment.assignmentname,
             submitted,
             notSubmitted,
         });
-        setShowModal(true);
+        setShowPieModal(true);
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setModalData(null);
+    const handleClosePieModal = () => {
+        setShowPieModal(false);
+        setPieModalData(null);
     };
 
-    const handleAddToCalendar = (title, start, end) => {
-        const eventTitle = encodeURIComponent('Your Event Title');
-        const eventStartDate = encodeURIComponent('2024-06-01T10:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
-        const eventEndDate = encodeURIComponent('2024-06-01T12:00:00'); // Format: YYYY-MM-DDTHH:mm:ss
+    const handleShowSchedModal = (task) => {
+        setSchedModalData(task.task_name);
+        setShowSchedModal(true);
+    };
 
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${eventStartDate}/${eventEndDate}`;
-
-        window.location.href = calendarUrl;
+    const handleCloseSchedModal = () => {
+        setShowSchedModal(false);
+        setSchedModalData(null);
     };
 
     const handleShowForm = () => {
@@ -85,11 +98,13 @@ function CourseDetails({ studentInfo }) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                courseId,
-                taskName: newTask.taskName,
-                dueDate: newTask.dueDate,
-                modifyDate: newTask.modifyDate,
-                status: newTask.status
+                personalActivity: {
+                    courseId,
+                    taskName: newTask.taskName,
+                    dueDate: new Date(newTask.dueDate).getTime() / 1000,  // Store as Unix timestamp
+                    modifyDate: new Date(newTask.modifyDate).getTime() / 1000,  // Store as Unix timestamp
+                    status: newTask.status
+                }
             }),
         })
             .then(response => response.json())
@@ -98,8 +113,8 @@ function CourseDetails({ studentInfo }) {
                     setPersonalActivities([...personalActivities, {
                         id: data.task_id,
                         taskname: newTask.taskName,
-                        duedate: newTask.dueDate,
-                        modifydate: newTask.modifyDate,
+                        duedate: new Date(newTask.dueDate).toLocaleDateString(),  // Format date for display
+                        modifydate: new Date(newTask.modifyDate).toLocaleDateString(),  // Format date for display
                         status: newTask.status
                     }]);
                     setNewTask({
@@ -126,7 +141,13 @@ function CourseDetails({ studentInfo }) {
             },
             body: JSON.stringify({ taskId }),
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
             .then(data => {
                 if (data.success) {
                     setPersonalActivities(personalActivities.filter(activity => activity.id !== taskId));
@@ -139,9 +160,63 @@ function CourseDetails({ studentInfo }) {
             });
     };
 
-    if (isLoading) {
-        return <div><h2>Loading...</h2></div>;
-    }
+
+    const toggleZoomRecordStatus = (id, currentStatus, zoomurl) => {
+        const newStatus = currentStatus === 'watched' ? 'unwatched' : 'watched';
+
+        fetch('/local/studentdash/ajax/fetch_data.php', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ zoomRecordId: id, status: newStatus }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    setZoomRecords(zoomRecords.map(record =>
+                        record.id === id ? { ...record, status: newStatus } : record
+                    ));
+                    // Open the zoomurl if it exists
+                    if (zoomurl) {
+                        window.open(zoomurl, '_blank');
+                    }
+                } else {
+                    console.error('Failed to update Zoom record status:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    };
+
+
+    const formatTime = (startTime, duration) => {
+        if (!startTime || !duration) return '';
+
+        // Parse the start time
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(startHours, startMinutes);
+
+        // Ensure duration is a number
+        const durationInHours = parseFloat(duration);
+        if (isNaN(durationInHours)) return '';
+
+        // Add the duration in hours
+        const endDate = new Date(startDate.getTime() + durationInHours * 60 * 60000);
+        const endHours = endDate.getHours().toString().padStart(2, '0');
+        const endMinutes = endDate.getMinutes().toString().padStart(2, '0');
+
+        // Format the time range
+        return `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')} - ${endHours}:${endMinutes}`;
+    };
 
     return (
         <Container className="courseDetailContainer" fluid style={{ padding: '20px', maxWidth: '1200px' }}>
@@ -160,7 +235,14 @@ function CourseDetails({ studentInfo }) {
 
                 <Row>
                     <Col>
-                        <Table responsive="sm" className="lecture-time" style={{ width: '60%', border: '1px solid transparent', textAlign: 'center', backgroundColor: 'rgb(255, 192, 0)', margin: '10px', borderRadius: '15px' }}>
+                        <Table responsive="sm" className="lecture-time" style={{
+                            width: '60%',
+                            border: '1px solid transparent',
+                            textAlign: 'center',
+                            backgroundColor: 'rgb(255, 192, 0)',
+                            margin: '10px',
+                            borderRadius: '15px'
+                        }}>
                             <tr>
                                 <th></th>
                                 <th></th>
@@ -169,8 +251,8 @@ function CourseDetails({ studentInfo }) {
                                 <th>הרצאות שהועברו</th>
                             </tr>
                             {schedule.map((lecture, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.5}s` }}>
-                                    <td>{lecture.type || 'הרצאות'}</td>
+                                <tr key={index} style={{ animationDelay: `${index * 0.5}s` }}>
+                                    <td>{lecture.role || 'הרצאות'}</td>
                                     <td>{lecture.lecturer_name || 'ד"ר חסידים יואש'}</td>
                                     <td>{lecture.day_of_week || 'יום חמישי'}</td>
                                     <td>{lecture.start_time || '10:15'} - {lecture.end_time || '13:30'}</td>
@@ -180,9 +262,22 @@ function CourseDetails({ studentInfo }) {
                     </Col>
                 </Row>
 
-                <Row className="subject-detail" style={{ backgroundColor: '#5ae4c6', border: '1px solid transparent', textAlign: 'center', borderRadius: '10px', margin: '10px', overflowX: 'auto' }}>
+                <Row className="subject-detail" style={{
+                    backgroundColor: '#5ae4c6',
+                    border: '1px solid transparent',
+                    textAlign: 'center',
+                    borderRadius: '10px',
+                    margin: '10px',
+                    overflowX: 'auto'
+                }}>
                     <Col>
-                        <Table responsive="sm" style={{ width: '95%', flex: 1, borderCollapse: 'collapse', backgroundColor: 'white', margin: '10px' }}>
+                        <Table responsive="sm" style={{
+                            width: '95%',
+                            flex: 1,
+                            borderCollapse: 'collapse',
+                            backgroundColor: 'white',
+                            margin: '10px'
+                        }}>
                             <tr>
                                 <th>מס"ד</th>
                                 <th>סוג המטלה</th>
@@ -196,31 +291,67 @@ function CourseDetails({ studentInfo }) {
                                 <th></th>
                             </tr>
                             {tasks.map((task, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
+                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
                                     <td>{index + 1}</td>
                                     <td>{task.task_type}</td>
                                     <td>{task.task_name}</td>
                                     <td>{task.due_date}</td>
                                     <td>{task.modify_date}</td>
                                     <td>{task.task_status}</td>
+
                                     <td>
-                                        <Button href={task.url} style={{ border: 'none' }} variant="light">
-                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
+                                        <Button href={task.url} style={{border: 'none'}} variant="light">
+                                            <Image src="../../frontend/dashboard/build/library_books.svg"
+                                                   alt="לעמוד המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
-                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="" className="hover-effect-image" /></td>
+
+                                    <tr>
+                                        <Button onClick={() => downloadAssignmentFiles(task.task_id)}>Download File
+                                            <Image src="../../frontend/dashboard/build/developer_guide.svg"
+                                                   alt="Download Assignment Files" className="hover-effect-image"/>
+                                        </Button>
+                                    </tr>
+
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleAddToCalendar()}>
-                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="" className="hover-effect-image" />
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowSchedModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg"
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
                                         </Button>
                                     </td>
+
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="" className="hover-effect-image" />
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowPieModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg"
+                                                   alt="אחוז משלימי המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
                                 </tr>
                             ))}
+                            {personalActivities.map((activity, index) => (
+                                <tr key={index + tasks.length} className="table-row"
+                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                    <td>{index + 1 + tasks.length}</td>
+                                    <td>personal activity</td>
+                                    <td>{activity.taskname}</td>
+                                    <td>{activity.duedate}</td>
+                                    <td>{activity.modifydate}</td>
+                                    <td>{activity.status}</td>
+                                    <td></td>
+                                    <td>
+                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleDelete(activity.id)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                            </svg>
+                                        </Button>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            ))}
+
                         </Table>
                         <div className="add-activity">
                             <span onClick={handleShowForm} style={{ cursor: 'pointer' }}> &#65291; הוספת משימה אישית</span>
@@ -290,7 +421,6 @@ function CourseDetails({ studentInfo }) {
                                 </Button>
                             </Form>
                         )}
-
                     </Col>
                 </Row>
 
@@ -305,16 +435,22 @@ function CourseDetails({ studentInfo }) {
                                 <th>משך</th>
                                 <th>מיקום</th>
                             </tr>
-                            {exams.map((exam, index) => (
-                                <tr key={index} className="table-row" style={{ animationDelay: `${index * 0.3}s` }}>
-                                    <td>{index + 1 || '1'}</td>
-                                    <td>{exam.exam_name || 'מבחן אמצע'}</td>
-                                    <td>{exam.exam_date || '22/02/24'}</td>
-                                    <td>{exam.exam_time || '09:00'} </td>
-                                    <td>{exam.exam_duration || '2'} שעות</td>
-                                    <td>{exam.exam_location || 'מקוון'}</td>
+
+                            {Array.isArray(exams) && exams.length > 0 ? exams.map((exam, index) => (
+                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                    <td>{index + 1}</td>
+                                    <td>{exam.exam_type}</td>
+                                    <td>{new Date(exam.exam_date * 1000).toLocaleDateString()}</td>
+                                    <td>{formatTime(exam.exam_time, exam.duration)}</td>
+                                    <td>{exam.duration} שעות  </td>
+                                    <td>{exam.location}</td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan="6">No exams found.</td>
+                                </tr>
+                            )}
+
                         </Table>
                     </Col>
                     <Col className="responsive-table-col" md={6} sm={12}>
@@ -327,95 +463,34 @@ function CourseDetails({ studentInfo }) {
                                 <th>סטטוס</th>
                                 <th></th>
                             </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>שיעור</td>
-                                <td>שיעור 1 הקלטה</td>
-                                <td>28/01/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>תרגול</td>
-                                <td>תרגול 1 הקלטה</td>
-                                <td>04/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>שיעור</td>
-                                <td>שיעור 2 הקלטה</td>
-                                <td>04/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>תרגול</td>
-                                <td>תרגול 2 הקלטה</td>
-                                <td>11/02/24</td>
-                                <td>נצפה</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>שיעור</td>
-                                <td>שיעור 4 הקלטה</td>
-                                <td>18/02/24</td>
-                                <td>טרם נצפה</td>
-                                <td></td>
-                            </tr>
-                        </Table>
-                    </Col>
-                </Row>
-
-                <Row>
-
-                    <Col>
-                        <h2 style={{textAlign:"center"}}>Personal Activities 👌</h2>
-                        <Table responsive="sm" style={{
-                            width: '95%',
-                            flex: 1,
-                            borderCollapse: 'collapse',
-                            backgroundColor: 'lightskyblue',
-                            margin: '10px',
-                            borderRadius: '10px'
-                        }}>
-                            <tr>
-                                <th>מס"ד</th>
-                                <th>שם המטלה</th>
-                                <th>מועד אחרון</th>
-                                <th>מועד בפועל</th>
-                                <th>סטטוס</th>
-                                <th>מחק</th>
-                            </tr>
-                            {personalActivities.map((activity, index) => (
-                                <tr key={index + tasks.length} className="table-row"
-                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
-                                    <td>{index + 1 + tasks.length}</td>
-                                    <td>{activity.taskname}</td>
-                                    <td>{new Date(activity.duedate * 1000).toLocaleDateString()}</td>
-                                    <td>{new Date(activity.modifydate * 1000).toLocaleDateString()}</td>
-                                    <td>{activity.status}</td>
+                            {zoomRecords.length > 0 ? zoomRecords.map((record, index) => (
+                                <tr key={record.id} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                    <td>{index + 1}</td>
+                                    <td>{record.recording_type}</td>
+                                    <td>{record.recording_name}</td>
+                                    <td>{new Date(record.recording_date * 1000).toLocaleDateString()}</td>
+                                    <td style={{color: record.status === 'watched' ? 'green' : 'red'}}>
+                                        {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
+                                    </td>
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
-                                                onClick={() => handleDelete(activity.id)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px"
-                                                 viewBox="0 -960 960 960" width="24px" fill="#5f6368">
-                                                <path
-                                                    d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/>
+                                        <Button variant="link" onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+                                                <path d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
                                             </svg>
                                         </Button>
                                     </td>
                                 </tr>
-                            ))}
+                            )) : (
+                                <tr>
+                                    <td colSpan="6">No zoom recordings found.</td>
+                                </tr>
+                            )}
                         </Table>
                     </Col>
                 </Row>
             </Container>
-            <ChartModal show={showModal} onHide={handleCloseModal} data={modalData} />
+            <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData} />
+            <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData} />
         </Container>
     );
 }
