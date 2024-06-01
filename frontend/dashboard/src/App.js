@@ -30,6 +30,24 @@ function App() {
                 setIsLoading(false);
             });
     }, []);
+    // Function to handle file download
+    const downloadAssignmentFiles = (taskId) => {
+        const course = studentInfo.courses.find(course =>
+            course.tasks.some(task => task.task_id === taskId)
+        );
+
+        if (course) {
+            const task = course.tasks.find(task => task.task_id === taskId);
+            const fileUrl = task.fileurl;
+            if (fileUrl) {
+                window.location.href = fileUrl; // Directly navigate to the URL which will trigger the file download
+            } else {
+                console.error('No download URL provided.');
+            }
+        } else {
+            console.error('Task not found.');
+        }
+    };
 
     return (
         <Container style={{backgroundColor: '#1f4e79'}}>
@@ -38,7 +56,7 @@ function App() {
                 <Routes>
                     <Route path="/" element={isLoading ? <Spinner animation="border"/> : studentInfo ?
                         <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
-                    <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo}/>}/>
+                    <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo}  downloadAssignmentFiles={downloadAssignmentFiles}/>}/>
                     <Route path="/back"
                            element={studentInfo ? <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
                     <Route path="/ToDo" element={<ToDoList studentInfo={studentInfo}/>}/>

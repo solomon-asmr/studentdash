@@ -5,7 +5,7 @@ import './CourseDetails.css';
 import ChartModal from "./ChartModal";
 import SchedModal from "./SchedModal";
 
-function CourseDetails({ studentInfo }) {
+function CourseDetails({ studentInfo, downloadAssignmentFiles }) {
     const { courseId } = useParams();
     const [tasks, setTasks] = useState([]);
     const [schedule, setSchedule] = useState([]);
@@ -34,6 +34,7 @@ function CourseDetails({ studentInfo }) {
                 setTasks(course.tasks || []);
                 setSchedule(Array.isArray(course.schedule) ? course.schedule : []);
                 setCourseName(course.fullname || '');
+                setExams(course.exams || []);
             }
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
@@ -298,28 +299,39 @@ function CourseDetails({ studentInfo }) {
                                     <td>{task.task_status}</td>
 
                                     <td>
-                                        <Button href={task.url} style={{ border: 'none' }} variant="light">
-                                            <Image src="../../frontend/dashboard/build/library_books.svg" alt="לעמוד המטלה" className="hover-effect-image" />
+                                        <Button href={task.url} style={{border: 'none'}} variant="light">
+                                            <Image src="../../frontend/dashboard/build/library_books.svg"
+                                                   alt="לעמוד המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
 
-                                    <td><Image src="../../frontend/dashboard/build/developer_guide.svg" alt="מסמך המטלה" className="hover-effect-image" /></td>
+                                    <tr>
+                                        <Button onClick={() => downloadAssignmentFiles(task.task_id)}>Download File
+                                            <Image src="../../frontend/dashboard/build/developer_guide.svg"
+                                                   alt="Download Assignment Files" className="hover-effect-image"/>
+                                        </Button>
+                                    </tr>
 
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowSchedModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg" alt="הקדשת זמן ביומן" className="hover-effect-image" />
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowSchedModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg"
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{ border: 'none' }} variant="light" onClick={() => handleShowPieModal(task)}>
-                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg" alt="אחוז משלימי המטלה" className="hover-effect-image" />
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowPieModal(task)}>
+                                            <Image src="../../frontend/dashboard/build/bid_landscape.svg"
+                                                   alt="אחוז משלימי המטלה" className="hover-effect-image"/>
                                         </Button>
                                     </td>
                                 </tr>
                             ))}
                             {personalActivities.map((activity, index) => (
-                                <tr key={index + tasks.length} className="table-row" style={{ animationDelay: `${(index + tasks.length) * 0.5}s` }}>
+                                <tr key={index + tasks.length} className="table-row"
+                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>personal activity</td>
                                     <td>{activity.taskname}</td>
