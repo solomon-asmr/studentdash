@@ -253,7 +253,6 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             borderRadius: '15px'
                         }}>
                             {course && (
-                                <thead>
                                 <tr>
                                     <th></th>
                                     <th>שם המרצה</th>
@@ -261,7 +260,6 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                     <th>שעות</th>
                                     <th>הרצאות שהועברו</th>
                                 </tr>
-                                </thead>
                             )}
                             {course.schedule && (
                                 <tr>
