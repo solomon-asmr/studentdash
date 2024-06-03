@@ -2,9 +2,30 @@ import React, {useState, useEffect, useRef} from 'react';
 import {Card, Row, Col, Container, Image} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import './StudentCard.css';
+function adjustFontSizeForElements() {
+    const elements = document.querySelectorAll('.lecturer-info p');
+    elements.forEach(el => {
+        let fontSize = 16; // Start with a base font size in pixels
+        el.style.fontSize = `${fontSize}px`;
+        while (el.scrollWidth > el.offsetWidth || el.scrollHeight > el.offsetHeight) {
+            fontSize--;
+            el.style.fontSize = `${fontSize}px`;
+            if (fontSize < 8) break; // Avoid too small font size
+        }
+    });
+}
 
 function CourseCard({course, isVisible}) {
     const cardRef = useRef(null);
+
+    useEffect(() => {
+        // Adjust font size when the component is rendered and when window resizes
+        adjustFontSizeForElements();
+        const handleResize = () => adjustFontSizeForElements();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     useEffect(() => {
         if (isVisible) {
@@ -16,9 +37,8 @@ function CourseCard({course, isVisible}) {
         const oneDay = 24 * 60 * 60 * 1000;
         return Math.round(Math.abs((date1 - date2) / oneDay));
     };
-
     return (
-        <Col ref={cardRef} className="card-container">
+        <Col ref={cardRef} className="card-container show">
             <Card className="subject-card">
                 <Card.Header className="card-header d-flex justify-content-between align-items-center">
                     <Link to={`/details/${course.id}`}>
@@ -53,9 +73,11 @@ function CourseCard({course, isVisible}) {
                                 <span>מרצה: </span>
                                 <Image src="/local/studentdash/frontend/dashboard/build/contact_mail.png" alt=""/>
                             </div>
-                            <div>
-                                <span><p>{course.lecturer || ' ד"ר יועש חסידים '}</p></span>
-                                <span>{course.lectureremail || 'yoash@sapir.edu.co.il'} </span>
+                            <div className="lecturer-info">
+                                <p className="lecturer-name">{course.lecturer || 'ד"ר יועש חסידים'}</p>
+                                <p className="lecturer-email" title={course.lectureremail || 'yoash@sapir.edu.co.il'}>
+                                    {course.lectureremail || 'yoash@sapir.edu.co.il'}
+                                </p>
                             </div>
                         </Col>
                     </Row>
@@ -69,7 +91,21 @@ function SubjectCard({studentInfo}) {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [visibleCards, setVisibleCards] = useState(new Set());
+    useEffect(() => {
+        setCourses(studentInfo.courses);
+    }, [studentInfo.courses]);
 
+
+    useEffect(() => {
+        adjustFontSizeForElements();
+        // Add resize event listener to re-check when window size changes
+        window.addEventListener('resize', adjustFontSizeForElements);
+
+        return () => {
+            // Cleanup resize listener on component unmount
+            window.removeEventListener('resize', adjustFontSizeForElements);
+        };
+    }, []);
     useEffect(() => {
         setCourses(studentInfo.courses);
         setLoading(false);
@@ -94,19 +130,16 @@ function SubjectCard({studentInfo}) {
     }, [courses]);
 
     return (
-        <Container fluid style={{padding: '20px', maxWidth: '1200px'}}>
-            {loading ? (
-                <div>Loading...</div>
-            ) : (
-                <Row xs={1} md={2} className="g-4">
-                    {courses.map((course, idx) => (
-                        <CourseCard key={idx} course={course}
-                                    isVisible={visibleCards.has(document.querySelectorAll('.card-container')[idx])}/>
-                    ))}
-                </Row>
-            )}
+        <Container fluid style={{ padding: '20px', maxWidth: '1200px' }}>
+            <Row xs={1} md={2} className="g-4">
+                {courses.map((course, idx) => (
+                    <CourseCard key={idx} course={course} />
+                ))}
+            </Row>
         </Container>
     );
 }
+
+
 
 export default SubjectCard;
