@@ -389,36 +389,46 @@ function fetch_course_events($userId, $courseId)
     return $courseEvents;
 }
 
-function get_assignment_file_url($courseModuleId)
-{
+function get_assignment_file_url($courseModuleId) {
     global $CFG;
 
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
+    // Get the course module using the provided ID
     $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
+    // Obtain context for the course module
     $context = context_module::instance($cm->id);
 
-    $fs = get_file_storage();
-    // Adjust file area to 'introattachment'
-    $files = $fs->get_area_files($context->id, 'mod_assign', 'introattachment', 0, 'itemid, filepath, filename', false);
+    // Obtain the file storage instance
+    $fileStorage = get_file_storage();
+    // Retrieve files from the specified area
+    $assignmentFiles = $fileStorage->get_area_files($context->id, 'mod_assign', 'introattachment', 0, 'itemid, filepath, filename', false);
 
+    // Process files to find the first valid file URL
+    return find_first_file_url($assignmentFiles);
+}
+
+function find_first_file_url($files) {
     foreach ($files as $file) {
-        if ($file->is_directory()) continue; // Skip directories
-
-        $url = moodle_url::make_pluginfile_url(
-            $file->get_contextid(),
-            $file->get_component(),
-            $file->get_filearea(),
-            $file->get_itemid(),
-            $file->get_filepath(),
-            $file->get_filename(),
-            true // Forces the download
-        );
-
-        return $url->out(false);
+        if (!$file->is_directory()) { // Ensure the file is not a directory
+            // Generate and return the URL for the file
+            return generate_file_url($file)->out(false);
+        }
     }
+    return null; // Return null if no suitable file is found
+}
 
-    return null; // Return null if no files were found
+function generate_file_url($file) {
+    // Generate a Moodle URL for the specified file
+    return moodle_url::make_pluginfile_url(
+        $file->get_contextid(),
+        $file->get_component(),
+        $file->get_filearea(),
+        $file->get_itemid(),
+        $file->get_filepath(),
+        $file->get_filename(),
+        true // Forces the download
+    );
 }
 
 function fetch_course_schedule($courseid)
