@@ -8,8 +8,8 @@
 
 .logo-image {
     border-radius: 10px;
-    width: 195px; /* If the original width is 200px, for example */
-    height: 100px; /* If the original height is 200px, for example */
+    width: 210px; /* If the original width is 200px, for example */
+    height: 120px; /* If the original height is 200px, for example */
 }
 
 
@@ -38,13 +38,16 @@
 }
 
 .student-nav-items {
+
     position: absolute;
+    width: 710px; /* If the original width is 200px, for example */
+    height:95px;
     left: 45px;
     right: 330px;
     border: 0px solid transparent;
     padding: 5px;
-    padding-left: 90px; /* Add padding to the left */
-    padding-right: 35px; /* Add padding to the right */
+    padding-left: 80px; /* Add padding to the left */
+    padding-right: 70px; /* Add padding to the right */
     border-radius: 10px;
     background-color: rgb(90, 228, 198);
     z-index: 2;
@@ -53,6 +56,8 @@
     align-items: center; /* Center items vertically */
     justify-content: space-between; /* Distribute items evenly */
     text-align: center;
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 17px; /* Font size */
 }
 
 .nav-link {
@@ -62,11 +67,16 @@
     justify-content: center; /* Center items vertically */
     text-align: center; /* Center text */
     margin: 0 10px; /* Add margin to the left and right of each link */
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 17px; /* Font size */
 }
 
 .Navbar.Text {
     width: 100%; /* Ensures full width to center text correctly */
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 17px; /* Font size */
 }
+
 
 
 .logo-image2 {
