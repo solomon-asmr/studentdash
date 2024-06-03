@@ -313,7 +313,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                 <th></th>
                             </tr>
                             {tasks.map((task, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.2}s`}}>
                                     <td>{index + 1}</td>
                                     <td>{task.task_type}</td>
                                     <td>{task.task_name}</td>
@@ -355,7 +355,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             ))}
                             {personalActivities.map((activity, index) => (
                                 <tr key={index + tasks.length} className="table-row"
-                                    style={{animationDelay: `${(index + tasks.length) * 0.5}s`}}>
+                                    style={{animationDelay: `${(index + tasks.length) * 0.2}s`}}>
                                     <td>{index + 1 + tasks.length}</td>
                                     <td>personal activity</td>
                                     <td>{activity.taskname}</td>
@@ -461,7 +461,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             </tr>
 
                             {Array.isArray(exams) && exams.length > 0 ? exams.map((exam, index) => (
-                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                <tr key={index} className="table-row" style={{animationDelay: `${index * 0.2}s`}}>
                                     <td>{index + 1}</td>
                                     <td>{exam.exam_type}</td>
                                     <td>{new Date(exam.exam_date * 1000).toLocaleDateString()}</td>
@@ -488,7 +488,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                 <th></th>
                             </tr>
                             {zoomRecords.length > 0 ? zoomRecords.map((record, index) => (
-                                <tr key={record.id} className="table-row" style={{animationDelay: `${index * 0.3}s`}}>
+                                <tr key={record.id} className="table-row" style={{animationDelay: `${index * 0.2}s`}}>
                                     <td>{index + 1}</td>
                                     <td>{record.recording_type}</td>
                                     <td>{record.recording_name}</td>
