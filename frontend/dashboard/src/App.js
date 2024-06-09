@@ -4,7 +4,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import SubjectCard from './SubjectCard';
 import CourseDetails from './CourseDetails';
 import NavigationBar from "./NavigationBar";
-import ToDoList from './ToDoList';
 import {
     BrowserRouter as Router,
     Routes,
@@ -59,7 +58,6 @@ function App() {
                     <Route path="/details/:courseId" element={<CourseDetails studentInfo={studentInfo}  downloadAssignmentFiles={downloadAssignmentFiles}/>}/>
                     <Route path="/back"
                            element={studentInfo ? <SubjectCard studentInfo={studentInfo}/> : <div>No data available</div>}/>
-                    <Route path="/ToDo" element={<ToDoList studentInfo={studentInfo}/>}/>
                 </Routes>
             </Router>
         </Container>

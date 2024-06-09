@@ -316,11 +316,13 @@ function fetch_course_tasks($userId, $courseId)
         $context = context_course::instance($courseId);
         $cm = get_coursemodule_from_instance('assign', $assignment->id, $courseId);
 
+        if (!$cm) {
+            continue; // Skip this assignment if course module is not found
+        }
+
         $submissions = $DB->get_records('assign_submission', ['assignment' => $assignment->id, 'status' => 'submitted']);
         $students = get_enrolled_users($context, 'mod/assign:submit');
         $submission_percentage = count($submissions) / count($students) * 100;
-
-        $assignment->$submission_percentage = $submission_percentage;
 
         $user_submission = $DB->get_record('assign_submission', ['assignment' => $assignment->id, 'userid' => $userId]);
 
@@ -345,6 +347,10 @@ function fetch_course_tasks($userId, $courseId)
         $context = context_course::instance($courseId);
         $cm = get_coursemodule_from_instance('quiz', $quiz->id, $courseId);
 
+        if (!$cm) {
+            continue; // Skip this quiz if course module is not found
+        }
+
         $attempts = $DB->get_records('quiz_attempts', ['quiz' => $quiz->id, 'state' => 'finished']);
         $students = get_enrolled_users($context, 'mod/quiz:attempt');
         $submission_percentage = count($attempts) / count($students) * 100;
@@ -366,6 +372,7 @@ function fetch_course_tasks($userId, $courseId)
 
     return $tasks;
 }
+
 
 function fetch_course_events($userId, $courseId)
 {
@@ -396,6 +403,11 @@ function get_assignment_file_url($courseModuleId) {
 
     // Get the course module using the provided ID
     $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
+
+    if (!$cm) {
+        return null; // Return null if no course module found
+    }
+
     // Obtain context for the course module
     $context = context_module::instance($cm->id);
 
@@ -407,6 +419,7 @@ function get_assignment_file_url($courseModuleId) {
     // Process files to find the first valid file URL
     return find_first_file_url($assignmentFiles);
 }
+
 
 function find_first_file_url($files) {
     foreach ($files as $file) {
