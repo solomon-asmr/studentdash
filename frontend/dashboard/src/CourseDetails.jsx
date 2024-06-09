@@ -345,7 +345,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                 <tr key={index + tasks.length} className="table-row"
                                     style={{animationDelay: `${(index + tasks.length) * 0.2}s`}}>
                                     <td>{index + 1 + tasks.length}</td>
-                                    <td>personal activity</td>
+                                    <td>Personal Activity</td>
                                     <td>{activity.taskname}</td>
                                     <td>{activity.duedate}</td>
                                     <td>{activity.modifydate}</td>
