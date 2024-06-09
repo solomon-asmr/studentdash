@@ -13,7 +13,6 @@
 }
 
 
-
 .specialButton {
     position: absolute;
     right: 85%; /* Align to the left side of the Navbar.Brand */
@@ -41,7 +40,7 @@
 
     position: absolute;
     width: 710px; /* If the original width is 200px, for example */
-    height:95px;
+    height: 95px;
     left: 45px;
     right: 330px;
     border: 0px solid transparent;
@@ -75,11 +74,9 @@
 
 .Navbar.Text {
     width: 100%; /* Ensures full width to center text correctly */
-    font-family: 'Roboto', sans-serif; /* Font family */
-    font-size: 1em; /* Font size */
-    font-weight: bold;
+    font-family: Georgia, Times, "Times New Roman", serif;
+    font-size: 0.5em; /* Font size */
 }
-
 
 
 .logo-image2 {
@@ -89,7 +86,6 @@
     transform: translateY(-50%);
     z-index: 2;
     border-radius: 9px;
-    border-radius: 10px;
     width: 130px; /* If the original width is 200px, for example */
     height: 70px;
 }

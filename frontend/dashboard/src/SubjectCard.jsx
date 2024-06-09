@@ -2,6 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import {Card, Row, Col, Container, Image} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import './StudentCard.css';
+
 function adjustFontSizeForElements() {
     const elements = document.querySelectorAll('.lecturer-info p');
     elements.forEach(el => {
@@ -10,7 +11,9 @@ function adjustFontSizeForElements() {
         while (el.scrollWidth > el.offsetWidth || el.scrollHeight > el.offsetHeight) {
             fontSize--;
             el.style.fontSize = `${fontSize}px`;
-            if (fontSize < 8) break; // Avoid too small font size
+            if (fontSize < 8) {
+                break;
+            } // Avoid too small font size
         }
     });
 }
@@ -46,11 +49,12 @@ function CourseCard({course, isVisible}) {
                                className="hover-effect-image"/>
                     </Link>
                     <h4 style={{color: "black", fontWeight: "bolder"}}>{course.fullname}</h4>
-                    <a href={course.url}>
+                    <Link to={course.url}>
                         <Image className="keyboard_backspace"
-                               src="/local/studentdash/frontend/dashboard/build/keyboard_backspace.png" alt="" width={50}
+                               src="/local/studentdash/frontend/dashboard/build/keyboard_backspace.png" alt="course site"
+                               width={50}
                                height={30}/>
-                    </a>
+                    </Link>
                 </Card.Header>
                 <Card.Body>
                     <Row>
@@ -130,16 +134,15 @@ function SubjectCard({studentInfo}) {
     }, [courses]);
 
     return (
-        <Container fluid style={{ padding: '20px', maxWidth: '1200px' }}>
+        <Container fluid style={{padding: '20px', maxWidth: '1200px'}}>
             <Row xs={1} md={2} className="g-4">
                 {courses.map((course, idx) => (
-                    <CourseCard key={idx} course={course} />
+                    <CourseCard key={idx} course={course}/>
                 ))}
             </Row>
         </Container>
     );
 }
-
 
 
 export default SubjectCard;

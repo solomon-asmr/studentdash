@@ -1,9 +1,9 @@
 import React from 'react';
-import { Container, Navbar, Nav, Image } from 'react-bootstrap';
+import {Container, Navbar, Nav, Image} from 'react-bootstrap';
 import './NavigationBar.css';
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
-function NavigationBar({ studentInfo }) {
+function NavigationBar({studentInfo}) {
     const imgUrl = "frontend/dashboard/build/studentDash.png";
     const imgUrl2 = "frontend/dashboard/build/sapir-logo.jpg";
 
@@ -27,13 +27,13 @@ function NavigationBar({ studentInfo }) {
             <Container fluid className="navbarContainer">
                 <Navbar.Brand href="#" className="navbar-brand">
                     <Link to="/">
-                        <Image src={imgUrl} alt="Logo" width={200} className="logo-image" />
+                        <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
                     </Link>
                     <Navbar.Text className="specialButton">
                         הי {studentInfo.firstname}, ברוך שובך!
                     </Navbar.Text>
                 </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle" />
+                <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="student-nav-items">
                         <Nav.Link className="nav-link">
@@ -63,9 +63,9 @@ function NavigationBar({ studentInfo }) {
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
-                <a href="https://www.sapir.ac.il/">
-                    <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100} />
-                </a>
+                <Link to="https://www.sapir.ac.il/">
+                    <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
+                </Link>
             </Container>
         </Navbar>
     );
