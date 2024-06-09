@@ -403,6 +403,11 @@ function get_assignment_file_url($courseModuleId) {
 
     // Get the course module using the provided ID
     $cm = get_coursemodule_from_id('assign', $courseModuleId, 0, false, MUST_EXIST);
+
+    if (!$cm) {
+        return null; // Return null if no course module found
+    }
+
     // Obtain context for the course module
     $context = context_module::instance($cm->id);
 
@@ -414,6 +419,7 @@ function get_assignment_file_url($courseModuleId) {
     // Process files to find the first valid file URL
     return find_first_file_url($assignmentFiles);
 }
+
 
 function find_first_file_url($files) {
     foreach ($files as $file) {
