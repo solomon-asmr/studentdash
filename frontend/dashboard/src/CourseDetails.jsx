@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import {Card, Container, Row, Col, Table, Image, Button, Form} from 'react-bootstrap';
+import {Card, Container, Row, Col, Table, Image, Button} from 'react-bootstrap';
 import {useParams, Link} from 'react-router-dom';
 import './CourseDetails.css';
 import ChartModal from "./ChartModal";
 import SchedModal from "./SchedModal";
+import AddTaskModal from "./AddTaskModal";
 
 function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const {courseId} = useParams();
@@ -14,13 +15,6 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const [zoomRecords, setZoomRecords] = useState([]);
     const [personalActivities, setPersonalActivities] = useState([]);
     const [courseName, setCourseName] = useState('');
-    const [showForm, setShowForm] = useState(false);
-    const [newTask, setNewTask] = useState({
-        taskName: '',
-        dueDate: '',
-        modifyDate: '',
-        status: ''
-    });
 
     const [pieModalData, setPieModalData] = useState(null);
     const [showPieModal, setShowPieModal] = useState(false);
@@ -28,9 +22,9 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     const [schedModalData, setSchedModalData] = useState(null);
     const [showSchedModal, setShowSchedModal] = useState(false);
 
+    const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+
     useEffect(() => {
-        console.log('studentInfo:', studentInfo);
-        console.log('courseId:', courseId);
         if (studentInfo && courseId) {
             const course = studentInfo.courses.find(c => c.id === courseId);
             if (course) {
@@ -43,7 +37,6 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
             fetch(`/local/studentdash/ajax/fetch_data.php?courseId=${courseId}`)
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Fetched data:', data); // Debugging: Log fetched data
                     setPersonalActivities((data.personalActivities || []).map(activity => ({
                         ...activity,
                         duedate: new Date(activity.duedate * 1000).toLocaleDateString(),
@@ -57,6 +50,11 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                 });
         }
     }, [studentInfo, courseId]);
+
+    const handleCloseAddTaskModal = () => {
+
+        setShowAddTaskModal(false);
+    };
 
     const handleShowPieModal = (assignment) => {
         const submitted = assignment.submission_percentage;
@@ -84,57 +82,47 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
         setSchedModalData(null);
     };
 
-    const handleShowForm = () => {
-        setShowForm(!showForm);
-    };
 
-    const handleInputChange = (e) => {
-        const {name, value} = e.target;
-        setNewTask({...newTask, [name]: value});
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        fetch('/local/studentdash/ajax/fetch_data.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                personalActivity: {
-                    courseId,
-                    taskName: newTask.taskName,
-                    dueDate: new Date(newTask.dueDate).getTime() / 1000,  // Store as Unix timestamp
-                    modifyDate: new Date(newTask.modifyDate).getTime() / 1000,  // Store as Unix timestamp
-                    status: newTask.status
-                }
-            }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    setPersonalActivities([...personalActivities, {
-                        id: data.task_id,
-                        taskname: newTask.taskName,
-                        duedate: new Date(newTask.dueDate).toLocaleDateString(),  // Format date for display
-                        modifydate: new Date(newTask.modifyDate).toLocaleDateString(),  // Format date for display
-                        status: newTask.status
-                    }]);
-                    setNewTask({
-                        taskName: '',
-                        dueDate: '',
-                        modifyDate: '',
-                        status: ''
-                    });
-                    setShowForm(false);
-                } else {
-                    console.error('Failed to add task:', data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+    async function handleAddTask(task) {
+        try {
+            const response = await fetch('/local/studentdash/ajax/fetch_data.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    personalActivity: {
+                        courseId,
+                        taskName: task.taskName,
+                        dueDate: task.dueDate,
+                        status: task.status
+                    }
+                }),
             });
-    };
+
+            const jsonResponse = await response.json(); // Parse the response as JSON
+
+            if (jsonResponse.success) {
+                const newTask = {
+                    id: jsonResponse.task_id,
+                    taskname: task.taskName,
+                    duedate: task.dueDate,
+                    modifydate: new Date().toLocaleDateString(), // Assuming modify date is the current date
+                    status: task.status,
+                };
+
+                // Update the personalActivities state to include the new task
+                setPersonalActivities([...personalActivities, newTask]);
+
+                console.log('Task added successfully:', jsonResponse.task_id);
+            } else {
+                console.error('Failed to add task:', jsonResponse.error);
+            }
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
+    }
+
 
     const handleDelete = (taskId) => {
         fetch('/local/studentdash/ajax/fetch_data.php', {
@@ -378,73 +366,9 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             ))}
                         </Table>
                         <div className="add-activity">
-                            <span onClick={handleShowForm} style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
+                            <span onClick={() => setShowAddTaskModal(true)}
+                                  style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
                         </div>
-                        {showForm && (
-                            <Form className="activityAdderForm" onSubmit={handleSubmit} style={{
-                                marginTop: '20px',
-                                marginBottom: '20px',
-                                backgroundColor: '#f8f9fa',
-                                padding: '20px',
-                                width: '60%',
-                                marginLeft: '20%',
-                                display: 'block',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: '10px',
-                                border: '1px solid #dee2e6',
-                                boxShadow: '10 4px 8px rgba(0, 0.8, 0.7, 0.9)'
-                            }}>
-                                <Form.Group controlId="taskName">
-                                    <Form.Label style={{fontWeight: 'bold'}}>שם המטלה</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="taskName"
-                                        value={newTask.taskName}
-                                        onChange={handleInputChange}
-                                        placeholder="personal activity"
-                                        required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="dueDate">
-                                    <Form.Label style={{fontWeight: 'bold'}}>מועד אחרון</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="dueDate"
-                                        value={newTask.dueDate}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="modifyDate">
-                                    <Form.Label style={{fontWeight: 'bold'}}>מועד בפועל</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        name="modifyDate"
-                                        value={newTask.modifyDate}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{marginBottom: '10px', borderColor: '#ced4da'}}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="status">
-                                    <Form.Label style={{fontWeight: 'bold'}}>סטטוס</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        name="status"
-                                        value={newTask.status}
-                                        onChange={handleInputChange}
-                                        required
-                                        style={{marginBottom: '20px', borderColor: '#ced4da'}}
-                                    />
-                                </Form.Group>
-                                <Button variant="primary" type="submit" style={{width: '100px', fontWeight: 'bold'}}>
-                                    שמור
-                                </Button>
-                            </Form>
-                        )}
                     </Col>
                 </Row>
 
@@ -518,6 +442,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
             </Container>
             <ChartModal show={showPieModal} onHide={handleClosePieModal} data={pieModalData}/>
             <SchedModal show={showSchedModal} onHide={handleCloseSchedModal} data={schedModalData}/>
+            <AddTaskModal show={showAddTaskModal} onHide={handleCloseAddTaskModal} onAddTask={handleAddTask}/>
         </Container>
     );
 }

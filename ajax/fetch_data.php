@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($input['personalActivity'])) {
         // Validate the input
         $activity = $input['personalActivity'];
-        if (empty($activity['courseId']) || empty($activity['taskName']) || empty($activity['dueDate']) || empty($activity['modifyDate']) || empty($activity['status'])) {
+        if (empty($activity['courseId']) || empty($activity['taskName']) || empty($activity['dueDate']) || empty($activity['status'])) {
             echo json_encode(['success' => false, 'error' => 'Invalid input']);
             exit;
         }
@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $task->courseid = $activity['courseId'];
         $task->taskname = $activity['taskName'];
         $task->duedate = strtotime($activity['dueDate']);
-        $task->modifydate = strtotime($activity['ModifyDate']);
+        $task->modifydate = strtotime($activity['dueDate']);
         $task->status = $activity['status'];
 
         try {
