@@ -58,11 +58,8 @@ const AddTaskModal = ({show, onHide, onAddTask}) => {
                     </Form.Group>
                 </Form>
             </Modal.Body>
-            <Modal.Footer>
-                <Button variant="secondary" onClick={onHide}>
-                    סגור
-                </Button>
-                <Button variant="primary" onClick={handleSubmit}>
+            <Modal.Footer style={{display: 'flex', justifyContent: 'center'}}>
+                <Button variant="secondary" onClick={handleSubmit}>
                     שמור שינויים
                 </Button>
             </Modal.Footer>
