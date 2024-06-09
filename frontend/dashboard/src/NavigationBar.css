@@ -1,41 +1,3 @@
-/* Ensure dropdown menu appears on hover */
-.student-dashboard-navbar {
-    font-family: Georgia, Times, "Times New Roman", serif;
-    font-size: 1.3em;
-}
-
-.hover-dropdown:hover .dropdown-menu {
-    display: block !important;
-    margin-top: 0; /* Override Bootstrap default spacing */
-
-}
-
-.nav-item .dropdown-menu {
-    display: none; /* Hide dropdown by default */
-}
-
-.hover-dropdown .nav-link {
-    background-color: transparent; /* Default background color */
-    transition: background-color 0.3s ease; /* Smooth transition */
-}
-
-.dropdown-menu {
-    text-align: center;
-}
-
-.hover-dropdown:hover .nav-link {
-    transform: scale(1.1);
-    border-radius: 3px; /* Change to your desired hover background color */
-    font-weight: bolder;
-}
-
-/* Existing styles */
-.student-dashboard-navbar {
-    padding: 15px;
-    border-radius: 10px;
-    transition: transform 0.6s, opacity 0.6s;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
 .navbar-brand {
     position: relative;
@@ -46,14 +8,18 @@
 
 .logo-image {
     border-radius: 10px;
+    width: 210px; /* If the original width is 200px, for example */
+    height: 120px; /* If the original height is 200px, for example */
 }
+
+
 
 .specialButton {
     position: absolute;
     right: 85%; /* Align to the left side of the Navbar.Brand */
     white-space: nowrap;
     transform: translateX(10%);
-    background-color: rgb(255, 192, 0);
+    background-color: rgb(223, 161, 0);
     border: 1px solid transparent;
     border-radius: 10px;
     max-width: 100vw; /* Maximum width can be 100% of the viewport width */
@@ -72,22 +38,60 @@
 }
 
 .student-nav-items {
+
     position: absolute;
-    left: 80px;
-    border: 1px solid transparent;
-    padding: 40px;
+    width: 710px; /* If the original width is 200px, for example */
+    height:95px;
+    left: 45px;
+    right: 330px;
+    border: 0px solid transparent;
+    padding: 5px;
+    padding-left: 80px; /* Add padding to the left */
+    padding-right: 70px; /* Add padding to the right */
     border-radius: 10px;
     background-color: rgb(90, 228, 198);
     z-index: 2;
+    display: flex;
+    flex-direction: row; /* Align items in a row */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Distribute items evenly */
+    text-align: center;
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 1em; /* Font size */
+    font-weight: bold;
 }
+
+.nav-link {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    text-align: center; /* Center text */
+    margin: 0 10px; /* Add margin to the left and right of each link */
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 1em; /* Font size */
+    font-weight: bold;
+}
+
+.Navbar.Text {
+    width: 100%; /* Ensures full width to center text correctly */
+    font-family: 'Roboto', sans-serif; /* Font family */
+    font-size: 1em; /* Font size */
+    font-weight: bold;
+}
+
+
 
 .logo-image2 {
     position: absolute;
-    left: 0;
+    left: 10px; /* Adjust this value as needed to move the image more to the right */
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
     border-radius: 9px;
+    border-radius: 10px;
+    width: 130px; /* If the original width is 200px, for example */
+    height: 70px;
 }
 
 @media (max-width: 320px) {
@@ -102,12 +106,12 @@
     .logo-image2 {
         margin-bottom: 3px;
         height: 40px;
-        width: 60px;
+        width: 0px;
         top: 100px;
     }
 
     * {
-        font-size: small;
+        font-size: medium;
     }
 }
 
@@ -123,11 +127,11 @@
     .logo-image2 {
         margin-bottom: 0;
         height: 40px;
-
         top: 100px;
+        width: 80px
     }
 
     /** {
-        font-size: small;
+      font-size: small;
     }*/
 }
