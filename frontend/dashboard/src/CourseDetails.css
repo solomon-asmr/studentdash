@@ -6,7 +6,7 @@
   transform: scale(1.2);
 }
 .courseDetailContainer{
-  font-family: Georgia, Times, "Times New Roman", serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 1.15em;
 }
 @keyframes slideIn {
