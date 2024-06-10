@@ -10,13 +10,14 @@
 /* Hover effects for the images */
 .hover-effect-image {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 40px;
+    width: 40px;
 }
 
 .hover-effect-image:hover {
     transform: scale(1.1); /* Slightly scale up the image */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow effect */
 }
-
 
 
 .card-container {
@@ -28,21 +29,25 @@
     font-size-adjust: 0.58;
 
 }
-.subject-card{
+
+.subject-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     box-shadow: 5px 7px 9px rgba(0.2, 0.4, 0.5, 0.9); /* Add shadow with rgba */
 
 }
+
 .card-container a:hover .subject-card {
     transform: scale(1.1); /* Increase size */
     transition: transform 0.5s ease-in-out;
 
 }
+
 .card-container.show {
     opacity: 1;
     transform: rotateY(0deg);
 
 }
+
 .card-container a:hover .hover-effect-image,
 .card-container a:hover .keyboard_backspace {
     transform: scale(1.1); /* Increase size */
@@ -57,6 +62,7 @@
     transform: scale(1.1) rotate(10deg); /* Increase size and rotate */
     transition: transform 0.3s ease-in-out;
 }
+
 .student-dashboard-container {
     margin: 0 auto;
     padding: 20px;
@@ -92,12 +98,13 @@
     overflow: hidden;
     position: relative;
 }
+
 .card-column span {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-weight:bold;
+    font-weight: bold;
     font-size: 1.1em;
     font-family: "Roboto Bold", Arial, sans-serif;
 }
@@ -132,10 +139,6 @@
 h2 {
     font-size: 2em;
 }
-
-
-
-
 
 
 .keyboard_backspace {
