@@ -25,7 +25,7 @@ function NavigationBar({studentInfo}) {
     return (
         <Navbar expand="lg" className="student-dashboard-navbar" variant="light" dir="rtl">
             <Container fluid className="navbarContainer">
-                <Navbar.Brand href="#" className="navbar-brand">
+                <Navbar.Brand href="#" className="navbar-brand studentdash">
                     <Link to="/">
                         <Image src={imgUrl} alt="Logo" width={200} className="logo-image"/>
                     </Link>
@@ -36,7 +36,7 @@ function NavigationBar({studentInfo}) {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" className="navbar-toggle"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="student-nav-items">
-                        <Nav.Link className="nav-link">
+                        <Nav.Link className="nav-link studentdash">
                             <div>פרטי הסטודנט:</div>
                             <div>
                                 <Navbar.Text>{studentInfo.firstname} {studentInfo.lastname}</Navbar.Text>
@@ -45,19 +45,19 @@ function NavigationBar({studentInfo}) {
                                 <Navbar.Text>{studentInfo.studentID}</Navbar.Text>
                             </div>
                         </Nav.Link>
-                        <Nav.Link className="nav-link">
+                        <Nav.Link className="nav-link studentdash">
                             <div>מחלקה:</div>
                             <Navbar.Text>{studentInfo.department}</Navbar.Text>
                         </Nav.Link>
-                        <Nav.Link className="nav-link">
+                        <Nav.Link className="nav-link studentdash">
                             <div>מגמה:</div>
                             <Navbar.Text>{studentInfo.major || null}</Navbar.Text>
                         </Nav.Link>
-                        <Nav.Link className="nav-link">
+                        <Nav.Link className="nav-link studentdash">
                             <div>שנת לימוד:</div>
                             <Navbar.Text>{getAcademicYear()}</Navbar.Text>
                         </Nav.Link>
-                        <Nav.Link className="nav-link">
+                        <Nav.Link className="nav-link studentdash">
                             <div>ממוצע ציונים:</div>
                             <Navbar.Text>{studentInfo.gradesAverage}</Navbar.Text>
                         </Nav.Link>

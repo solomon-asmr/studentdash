@@ -1,5 +1,5 @@
 
-.navbar-brand {
+.navbar-brand.studentdash {
     position: relative;
     right: 0;
     display: flex;
@@ -45,7 +45,7 @@
 
     position: absolute;
 
-    height:95px;
+    height: 95px;
     left: 45px;
     right: 330px;
     border: 0px solid transparent;
@@ -65,7 +65,7 @@
     font-weight: bold;
 }
 
-.nav-link {
+.nav-link.studentdash {
     display: flex;
     flex-direction: column; /* Stack items vertically */
     align-items: center; /* Center items horizontally */
@@ -74,16 +74,14 @@
     margin: 0 10px; /* Add margin to the left and right of each link */
     font-family: 'Roboto', sans-serif; /* Font family */
     font-size: 1em; /* Font size */
-    font-weight: bold;
 }
 
 .Navbar.Text {
     width: 100%; /* Ensures full width to center text correctly */
     font-family: 'Roboto', sans-serif; /* Font family */
     font-size: 1em; /* Font size */
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
-
 
 
 .logo-image2 {
