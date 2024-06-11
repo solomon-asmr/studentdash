@@ -2,7 +2,6 @@
 // Include Moodle configuration
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/calendar/lib.php'); // for fetching calendar events
-require_once($CFG->libdir . '/moodlelib.php'); // for sending emails
 
 // Authenticate user (if necessary)
 require_login();
@@ -13,9 +12,6 @@ global $DB, $USER;
 ensure_personal_activities_table_exists();
 ensure_exams_table_exists();
 ensure_zoom_records_table_exists();
-
-// Send exam alerts
-send_exam_alerts();
 
 // Set the appropriate headers to indicate JSON response and allow cross-origin requests
 set_json_headers();
@@ -156,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
     handle_invalid_request();
 }
-
 function fetch_user_with_custom_fields($userId)
 {
     global $DB;
@@ -378,6 +373,7 @@ function fetch_course_tasks($userId, $courseId)
     return $tasks;
 }
 
+
 function fetch_course_events($userId, $courseId)
 {
     global $DB;
@@ -523,20 +519,17 @@ function fetch_course_exams($courseId)
 
     $examSQL = "
         SELECT
-            e.id,
-            e.courseid,
-            e.exam_type,
-            e.exam_date,
-            e.exam_time,
-            e.duration,
-            e.location,
-            c.fullname as coursename
+            id,
+            courseid,
+            exam_type,
+            exam_date,
+            exam_time,
+            duration,
+            location
         FROM
-            {exams} e
-        JOIN
-            {course} c ON e.courseid = c.id
+            {exams}
         WHERE
-            e.courseid = :courseid
+            courseid = :courseid
     ";
     $exams = $DB->get_records_sql($examSQL, array('courseid' => $courseId));
     return array_values($exams); // Ensure the result is returned as an array
@@ -576,50 +569,6 @@ function fetch_course_role_users($courseId, $roleId)
     return $DB->get_records_sql($sql, ['courseid' => $courseId, 'roleid' => $roleId]);
 }
 
-function send_exam_alerts()
-{
-    global $DB;
-
-    $now = time();
-    $one_day = 86400; // One day in seconds
-    $alert_days = [7, 3, 1]; // Days before the exam to send alerts
-
-    foreach ($alert_days as $days_before) {
-        $start_date = $now + ($days_before * $one_day);
-        $end_date = $start_date + $one_day - 1;
-
-        $sql = "
-            SELECT e.*, c.fullname as coursename, u.email
-            FROM {exams} e
-            JOIN {course} c ON e.courseid = c.id
-            JOIN {user_enrolments} ue ON ue.enrolid = (
-                SELECT id FROM {enrol} WHERE courseid = e.courseid LIMIT 1
-            )
-            JOIN {user} u ON u.id = ue.userid
-            WHERE e.exam_date BETWEEN :start_date AND :end_date
-        ";
-
-        $upcoming_exams = $DB->get_records_sql($sql, [
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-        ]);
-
-        foreach ($upcoming_exams as $exam) {
-            $days_left = ceil(($exam->exam_date - $now) / $one_day);
-            $subject = "Upcoming Exam Date";
-            $body = "
-                Please note,
-                In the {$exam->coursename} course, the {$exam->exam_type} will take place in {$days_left} days.
-                Best regards,
-                The StudentDash Team
-            ";
-
-            email_to_user((object)[
-                'email' => $exam->email
-            ], null, $subject, $body);
-        }
-    }
-}
 
 function set_json_headers()
 {
@@ -634,4 +583,3 @@ function handle_invalid_request()
     http_response_code(405); // Method Not Allowed
     echo json_encode(['success' => false, 'error' => 'Method Not Allowed']);
 }
-?>
