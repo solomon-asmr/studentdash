@@ -2,6 +2,7 @@
 // Include Moodle configuration
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/calendar/lib.php'); // for fetching calendar events
+require_once($CFG->libdir . '/moodlelib.php'); // for sending emails
 
 // Authenticate user (if necessary)
 require_login();
@@ -13,11 +14,11 @@ ensure_personal_activities_table_exists();
 ensure_exams_table_exists();
 ensure_zoom_records_table_exists();
 
-// Set the appropriate headers to indicate JSON response and allow cross-origin requests
-set_json_headers();
-
 // Send exam alerts
 send_exam_alerts();
+
+// Set the appropriate headers to indicate JSON response and allow cross-origin requests
+set_json_headers();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['action']) && $_GET['action'] == 'download' && isset($_GET['taskid'])) {
