@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {Card, Container, Row, Col, Table, Image, Button} from 'react-bootstrap';
 import {useParams, Link} from 'react-router-dom';
 import './CourseDetails.css';
+import {backspaceSVGDataUrl, collapseContentSVGDataUrl} from './constants';
 import ChartModal from "./ChartModal";
 import SchedModal from "./SchedModal";
 import AddTaskModal from "./AddTaskModal";
@@ -218,7 +219,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
             <Container fluid style={{backgroundColor: 'white', borderRadius: '10px', position: "relative"}}>
                 <Card.Header className="d-flex justify-content-between align-items-center">
                     <Link to="/back">
-                        <Image src="../../frontend/dashboard/build/collapse_content.png" width="50" height="50"
+                        <Image src={collapseContentSVGDataUrl} width="30" height="30"
                                alt="collapse content" className="hover-effect-image"/>
                     </Link>
 
@@ -226,7 +227,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
 
                     <Link to="/back">
                         <Image className="keyboard_backspace hover-effect-image"
-                               src="../../frontend/dashboard/build/keyboard_backspace.png" width="50" height="30" alt="nothing"/>
+                               src={backspaceSVGDataUrl} width="70" height="40" alt="nothing"/>
                     </Link>
                 </Card.Header>
 

@@ -10,8 +10,6 @@
 /* Hover effects for the images */
 .hover-effect-image {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 40px;
-    width: 40px;
 }
 
 .hover-effect-image:hover {
@@ -25,7 +23,7 @@
     transform: rotateY(90deg);
     transition: transform 0.6s, opacity 0.6s;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1.15em;
+    font-size: 1em;
     font-size-adjust: 0.58;
 
 }
