@@ -51,12 +51,14 @@ function CourseCard({course, isVisible}) {
                                className="hover-effect-image"/>
                     </Link>
                     <h3 style={{color: "black", fontWeight: "bolder"}}>{course.fullname}</h3>
-                    <Link to={course.url}>
+
+                    <a href={course.url} target="_blank" rel="noopener noreferrer">
                         <Image className="keyboard_backspace"
-                               src={backspaceSVGDataUrl} alt="course site"
+                               src={backspaceSVGDataUrl}
+                               alt="course site"
                                width={70}
                                height={40}/>
-                    </Link>
+                    </a>
                 </Card.Header>
                 <Card.Body>
                     <Row>

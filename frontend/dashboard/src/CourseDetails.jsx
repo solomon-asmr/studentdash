@@ -225,10 +225,11 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
 
                     <h2 style={{color: "black", fontWeight: "bolder"}}>{courseName}</h2>
 
-                    <Link to="/back">
+
+                    <a href={course.url} target="_blank" rel="noopener noreferrer">
                         <Image className="keyboard_backspace hover-effect-image"
                                src={backspaceSVGDataUrl} width="70" height="40" alt="nothing"/>
-                    </Link>
+                    </a>
                 </Card.Header>
 
                 <Row>
@@ -296,7 +297,8 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                     <td>{task.task_status}</td>
 
                                     <td>
-                                        <Button href={task.url} style={{border: 'none', padding: 0, margin: 0, height: '20px'}}
+                                        <Button href={task.url} target="_blank" rel="noopener noreferrer"
+                                                style={{border: 'none', padding: 0, margin: 0, height: '20px'}}
                                                 variant="light">
                                             <Image src="../../frontend/dashboard/build/library_books.svg"
                                                    alt="לעמוד המטלה" className="hover-effect-image"
