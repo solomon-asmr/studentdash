@@ -24,6 +24,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
+$string['send_exam_alerts'] = 'Send Exam Alerts';
 $string['helloworld'] = 'Hello, World!';
 $string['pluginname'] = 'Student-Dash';
