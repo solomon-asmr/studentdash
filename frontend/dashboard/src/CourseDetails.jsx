@@ -286,21 +286,20 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             width: '95%',
                             flex: 1,
                             borderCollapse: 'collapse',
-                            backgroundColor: 'white',
                             margin: '10px'
                         }}>
-                            <tr>
-                                <th>מס"ד</th>
-                                <th>סוג המטלה</th>
-                                <th>שם המטלה</th>
-                                <th>מועד אחרון</th>
-                                <th>מועד בפועל</th>
-                                <th>סטטוס</th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                            </tr>
+                            <thead style={{backgroundColor: '#5ae4c6'}}>
+                            <th>מס"ד</th>
+                            <th>סוג המטלה</th>
+                            <th>שם המטלה</th>
+                            <th>מועד אחרון</th>
+                            <th>מועד בפועל</th>
+                            <th>סטטוס</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            </thead>
                             {tasks.map((task, index) => (
                                 <tr key={index} className="table-row" style={{animationDelay: `${index * 0.2}s`}}>
                                     <td>{index + 1}</td>
@@ -361,6 +360,15 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                             </svg>
                                         </Button>
                                     </td>
+                                    <td>
+                                        <Button style={{border: 'none'}} variant="light"
+                                                onClick={() => handleShowSchedModal(activity)}>
+                                            <Image src="../../frontend/dashboard/build/calendar_clock.svg"
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
+                                        </Button>
+                                    </td>
+
+
                                     <td></td>
                                     <td></td>
                                 </tr>

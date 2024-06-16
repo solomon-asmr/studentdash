@@ -23,7 +23,7 @@
 }
 
 .table-row {
-    animation: slideIn 0.5s ease forwards;
+
 }
 
 .add-activity {
@@ -37,10 +37,10 @@
     margin-bottom: 10px;
 }
 
-th, td {
-    border-bottom: 1px solid black; /* Adds a horizontal line below each row */
-    padding: 8px;
-    text-align: left;
+thead, td {
+    border-bottom: 1px solid #ddd; /* Optional: Add border for better visual separation */
+    padding: 3px 0;
+    text-align: center;
 }
 
 tr:last-child td {
@@ -55,7 +55,9 @@ tr:last-child td {
 }
 
 .table-row {
+    animation: slideIn 0.3s ease forwards;
     background-color: white;
+    height: 10px
 }
 
 @media (max-width: 992px) and (min-width: 768px) {
