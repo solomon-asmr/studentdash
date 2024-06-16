@@ -1,3 +1,8 @@
+.add-activity-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
 .hover-effect-image {
     transition: transform 0.3s ease;
 }
@@ -22,25 +27,29 @@
     }
 }
 
-.table-row {
-
-}
-
 .add-activity {
     background-color: rgb(255, 192, 0);
     border: 1px solid transparent;
     text-decoration: none;
-    display: inline-block; /* Makes the element only as wide as its content */
-    padding: 10px 20px; /* Adds space around the text */
-    border-radius: 25px; /* Adjusted to visually fit the text */
-    font-size: 16px; /* Text size */
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 16px;
     margin-bottom: 10px;
 }
 
-thead, td {
-    border-bottom: 1px solid #ddd; /* Optional: Add border for better visual separation */
-    padding: 3px 0;
+th, td {
+    border-bottom: 1px solid #ddd;
     text-align: center;
+    white-space: nowrap;
+}
+
+td {
+    font-size: smaller;
+}
+
+th {
+    border-top-width: 0 !important;
 }
 
 tr:last-child td {
@@ -51,13 +60,13 @@ tr:last-child td {
     background-color: rgb(255, 192, 0);
     border: 1px solid transparent;
     border-radius: 10px;
-
 }
 
 .table-row {
     animation: slideIn 0.3s ease forwards;
     background-color: white;
-    height: 10px
+    height: 30px !important;
+    padding: 2px !important;
 }
 
 @media (max-width: 992px) and (min-width: 768px) {
@@ -99,16 +108,5 @@ tr:last-child td {
 }
 
 .subject-detail table {
-    width: 95%;
-    border-collapse: collapse;
-    background-color: white;
-    margin: 10px;
-}
-
-.add-activity {
-    background-color: rgb(255, 192, 0);
-    border: 1px solid transparent;
-    text-decoration: none;
-    display: inline-block; /* Makes the element only as wide as its content */
-    padding: 10px
+    width: 98%;
 }

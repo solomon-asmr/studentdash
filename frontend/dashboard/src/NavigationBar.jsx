@@ -10,13 +10,13 @@ function NavigationBar({studentInfo}) {
     function getAcademicYear() {
         switch (studentInfo.academic_year) {
             case '1':
-                return 'א';
+                return 'א\'';
             case '2':
-                return 'ב';
+                return 'ב\'';
             case '3':
-                return 'ג';
+                return 'ג\'';
             case '4':
-                return 'ד';
+                return 'ד\'';
             default:
                 return studentInfo.academic_year;
         }
@@ -37,29 +37,29 @@ function NavigationBar({studentInfo}) {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="student-nav-items">
                         <Nav.Link className="nav-link studentdash">
-                            <div>פרטי הסטודנט:</div>
+                            <strong>פרטי הסטודנט</strong>
                             <div>
-                                <Navbar.Text>{studentInfo.firstname} {studentInfo.lastname}</Navbar.Text>
+                                {studentInfo.firstname} {studentInfo.lastname}
                             </div>
                             <div>
-                                <Navbar.Text>{studentInfo.studentID}</Navbar.Text>
+                                {studentInfo.studentID}
                             </div>
                         </Nav.Link>
                         <Nav.Link className="nav-link studentdash">
-                            <div>מחלקה:</div>
-                            <Navbar.Text>{studentInfo.department}</Navbar.Text>
+                            <strong>מחלקה</strong>
+                            <span>{studentInfo.department}</span>
                         </Nav.Link>
                         <Nav.Link className="nav-link studentdash">
-                            <div>מגמה:</div>
-                            <Navbar.Text>{studentInfo.major || null}</Navbar.Text>
+                            <strong>מגמה</strong>
+                            <span>{studentInfo.major || null}</span>
                         </Nav.Link>
                         <Nav.Link className="nav-link studentdash">
-                            <div>שנת לימוד:</div>
-                            <Navbar.Text>{getAcademicYear()}</Navbar.Text>
+                            <strong>שנת לימוד</strong>
+                            <span>{getAcademicYear()}</span>
                         </Nav.Link>
                         <Nav.Link className="nav-link studentdash">
-                            <div>ממוצע ציונים:</div>
-                            <Navbar.Text>{studentInfo.gradesAverage}</Navbar.Text>
+                            <strong>ממוצע ציונים</strong>
+                            <span>{studentInfo.gradesAverage}</span>
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>

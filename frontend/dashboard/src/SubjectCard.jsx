@@ -61,7 +61,7 @@ function CourseCard({course, isVisible}) {
                 <Card.Body>
                     <Row>
                         <Col className="d-flex justify-content-between card-column">
-                            <h3>{course.tasks.length}</h3>
+                            <h2>{course.tasks.length}</h2>
                             <span>משימות ממתינות</span>
                         </Col>
                         <Col className="d-flex justify-content-between card-column">
@@ -76,7 +76,7 @@ function CourseCard({course, isVisible}) {
                         </Col>
                         <Col className="d-flex justify-content-between card-column">
                             <div>
-                                <span>מרצה: </span>
+                                <span>מרצה</span>
                                 <Image src="/local/studentdash/frontend/dashboard/build/contact_mail.png" alt=""/>
                             </div>
                             <div className="lecturer-info">

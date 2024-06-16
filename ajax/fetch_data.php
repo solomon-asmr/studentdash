@@ -332,9 +332,9 @@ function fetch_course_tasks($userId, $courseId)
             'task_id' => $assignment->id,
             'task_type' => 'Assignment',
             'task_name' => $assignment->name,
-            'due_date' => gmdate("d-m-Y H:i", $assignment->duedate),
+            'due_date' => gmdate("d/m/Y, H:i", $assignment->duedate),
             'task_status' => $has_submitted,
-            'modify_date' => !empty($user_submission) ? gmdate("d-m-Y", $user_submission->timemodified) : null,
+            'modify_date' => !empty($user_submission) ? gmdate("d/m/Y", $user_submission->timemodified) : null,
             'submission_percentage' => $submission_percentage,
             'url' => (new moodle_url('/mod/assign/view.php', array('id' => $cm->id)))->out(false),
             'fileurl' => get_assignment_file_url($cm->id)
@@ -362,9 +362,9 @@ function fetch_course_tasks($userId, $courseId)
             'task_id' => $quiz->id,
             'task_type' => 'Quiz',
             'task_name' => $quiz->name,
-            'due_date' => gmdate("d-m-Y H:i", $quiz->timeclose),
+            'due_date' => gmdate("d/m/Y, H:i", $quiz->timeclose),
             'task_status' => $has_attempted,
-            'modify_date' => !empty($user_attempt) ? gmdate("d-m-Y", $user_attempt->timemodified) : null,
+            'modify_date' => !empty($user_attempt) ? gmdate("d/m/Y", $user_attempt->timemodified) : null,
             'submission_percentage' => $submission_percentage,
             'url' => (new moodle_url('/mod/quiz/view.php', ['id' => $cm->id]))->out(false)
         ];
@@ -396,7 +396,8 @@ function fetch_course_events($userId, $courseId)
     return $courseEvents;
 }
 
-function get_assignment_file_url($courseModuleId) {
+function get_assignment_file_url($courseModuleId)
+{
     global $CFG;
 
     require_once($CFG->dirroot . '/mod/assign/locallib.php');
@@ -421,7 +422,8 @@ function get_assignment_file_url($courseModuleId) {
 }
 
 
-function find_first_file_url($files) {
+function find_first_file_url($files)
+{
     foreach ($files as $file) {
         if (!$file->is_directory()) { // Ensure the file is not a directory
             // Generate and return the URL for the file
@@ -431,7 +433,8 @@ function find_first_file_url($files) {
     return null; // Return null if no suitable file is found
 }
 
-function generate_file_url($file) {
+function generate_file_url($file)
+{
     // Generate a Moodle URL for the specified file
     return moodle_url::make_pluginfile_url(
         $file->get_contextid(),

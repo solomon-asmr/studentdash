@@ -74,7 +74,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
     };
 
     const handleShowSchedModal = (task) => {
-        setSchedModalData(task.task_name);
+        setSchedModalData(task.task_name || task.taskname);
         setShowSchedModal(true);
     };
 
@@ -273,33 +273,19 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                     </Col>
                 </Row>
 
-                <Row className="subject-detail" style={{
-                    backgroundColor: '#5ae4c6',
-                    border: '1px solid transparent',
-                    textAlign: 'center',
-                    borderRadius: '10px',
-                    margin: '10px',
-                    overflowX: 'auto'
-                }}>
-                    <Col>
-                        <Table responsive="sm" style={{
-                            width: '95%',
-                            flex: 1,
-                            borderCollapse: 'collapse',
-                            margin: '10px'
-                        }}>
-                            <thead style={{backgroundColor: '#5ae4c6'}}>
-                            <th>מס"ד</th>
-                            <th>סוג המטלה</th>
-                            <th>שם המטלה</th>
-                            <th>מועד אחרון</th>
-                            <th>מועד בפועל</th>
-                            <th>סטטוס</th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            </thead>
+                <Row className="subject-detail" style={{backgroundColor: '#5ae4c6'}}>
+                    <Col style={{alignItems: 'flex-start'}}>
+                        <Table responsive="sm" style={{flex: 0, margin: '10px'}}>
+                            <tr style={{backgroundColor: '#5ae4c6'}}>
+                                <th>מס"ד</th>
+                                <th>סוג המטלה</th>
+                                <th>שם המטלה</th>
+                                <th>מועד אחרון</th>
+                                <th>מועד בפועל</th>
+                                <th>סטטוס</th>
+                            </tr>
+
+                            <tbody>
                             {tasks.map((task, index) => (
                                 <tr key={index} className="table-row" style={{animationDelay: `${index * 0.2}s`}}>
                                     <td>{index + 1}</td>
@@ -310,33 +296,42 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                     <td>{task.task_status}</td>
 
                                     <td>
-                                        <Button href={task.url} style={{border: 'none'}} variant="light">
+                                        <Button href={task.url} style={{border: 'none', padding: 0, margin: 0, height: '20px'}}
+                                                variant="light">
                                             <Image src="../../frontend/dashboard/build/library_books.svg"
-                                                   alt="לעמוד המטלה" className="hover-effect-image"/>
+                                                   alt="לעמוד המטלה" className="hover-effect-image"
+                                                   style={{height: '100%', width: 'auto'}}/>
+
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}} variant="light"
                                                 onClick={() => downloadAssignmentFiles(task.task_id)}>
                                             <Image src="../../frontend/dashboard/build/developer_guide.svg"
-                                                   alt="Download Assignment Files" className="hover-effect-image"/>
+                                                   alt="Download Assignment Files" className="hover-effect-image"
+                                                   style={{height: '100%', width: 'auto'}}/>
+
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}} variant="light"
                                                 onClick={() => handleShowSchedModal(task)}>
                                             <Image src="../../frontend/dashboard/build/calendar_clock.svg"
-                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"
+                                                   style={{height: '100%', width: 'auto'}}/>
+
                                         </Button>
                                     </td>
 
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}} variant="light"
                                                 onClick={() => handleShowPieModal(task)}>
                                             <Image src="../../frontend/dashboard/build/bid_landscape.svg"
-                                                   alt="אחוז משלימי המטלה" className="hover-effect-image"/>
+                                                   alt="אחוז משלימי המטלה" className="hover-effect-image"
+                                                   style={{height: '100%', width: 'auto'}}/>
+
                                         </Button>
                                     </td>
                                 </tr>
@@ -352,7 +347,8 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                     <td>{activity.status}</td>
                                     <td></td>
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light" onClick={() => handleDelete(activity.id)}>
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}} variant="light"
+                                                onClick={() => handleDelete(activity.id)}>
                                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
                                                  width="24px" fill="#5f6368">
                                                 <path
@@ -361,25 +357,27 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                         </Button>
                                     </td>
                                     <td>
-                                        <Button style={{border: 'none'}} variant="light"
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}} variant="light"
                                                 onClick={() => handleShowSchedModal(activity)}>
                                             <Image src="../../frontend/dashboard/build/calendar_clock.svg"
-                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"/>
+                                                   alt="הקדשת זמן ביומן" className="hover-effect-image"
+                                                   style={{height: '100%', width: 'auto'}}/>
                                         </Button>
                                     </td>
-
-
-                                    <td></td>
                                     <td></td>
                                 </tr>
                             ))}
+                            </tbody>
                         </Table>
-                        <div className="add-activity">
-                            <span onClick={() => setShowAddTaskModal(true)}
-                                  style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
+                        <div className="add-activity-container">
+                            <div className="add-activity">
+                                <span onClick={() => setShowAddTaskModal(true)}
+                                      style={{cursor: 'pointer'}}> &#65291; הוספת משימה אישית</span>
+                            </div>
                         </div>
                     </Col>
                 </Row>
+
 
                 <Row>
                     <Col className="responsive-table-col" md={6} sm={12}>
@@ -430,10 +428,11 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                                         {record.status === 'watched' ? 'נצפה' : 'טרם נצפה'}
                                     </td>
                                     <td>
-                                        <Button variant="link"
+                                        <Button style={{border: 'none', padding: 0, margin: 0, height: '20px'}}
+                                                variant="link"
                                                 onClick={() => toggleZoomRecordStatus(record.id, record.status, record.zoomurl)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
-                                                 width="24px" fill="#5f6368">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960"
+                                                 width="16px" fill="#5f6368">
                                                 <path
                                                     d="M360-280h80v-131l120 69 40-69-120-69 120-69-40-69-120 69v-131h-80v131l-120-69-40 69 120 69-120 69 40 69 120-69v131ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h480q33 0 56.5 23.5T720-720v180l160-160v440L720-420v180q0 33-23.5 56.5T640-160H160Zm0-80h480v-480H160v480Zm0 0v-480 480Z"/>
                                             </svg>
