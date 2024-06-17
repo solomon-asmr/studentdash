@@ -63,7 +63,7 @@ function NavigationBar({studentInfo}) {
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
-                <Link to="https://www.sapir.ac.il/">
+                <Link to="https://www.sapir.ac.il/" target="_blank" rel="noopener noreferrer">
                     <Image src={imgUrl2} className="logo-image2" alt="College Logo" width={100}/>
                 </Link>
             </Container>
