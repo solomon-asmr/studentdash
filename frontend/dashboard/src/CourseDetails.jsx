@@ -253,7 +253,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             )}
                             {course.schedule && (
                                 <tr>
-                                    <td>Lectures</td>
+                                    <td>הרצאות</td>
                                     <td>{course.lecturer}</td>
                                     <td>{schedule.lectures.day}</td>
                                     <td>{schedule.lectures.time}</td>
@@ -262,7 +262,7 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                             )}
                             {course.schedule && (
                                 <tr>
-                                    <td>Practices</td>
+                                    <td>תרגולים</td>
                                     <td>{course.practitioner || 'practitioner name'}</td>
                                     <td>{schedule.practices.day}</td>
                                     <td>{schedule.practices.time}</td>
