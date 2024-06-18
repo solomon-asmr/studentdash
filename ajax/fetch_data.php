@@ -322,7 +322,7 @@ function fetch_course_tasks($userId, $courseId)
 
         $submissions = $DB->get_records('assign_submission', ['assignment' => $assignment->id, 'status' => 'submitted']);
         $students = get_enrolled_users($context, 'mod/assign:submit');
-        $submission_percentage = count($submissions) / count($students) * 100;
+        $submission_percentage = count($students) > 0 ? count($submissions) / count($students) * 100 : 100;
 
         $user_submission = $DB->get_record('assign_submission', ['assignment' => $assignment->id, 'userid' => $userId]);
 

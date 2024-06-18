@@ -153,3 +153,7 @@ h2 {
 
 
 }*/
+h2 {
+    font-weight: 700; /* Maximum boldness */
+    font-size: 2rem; /* Adjust size as needed */
+}
