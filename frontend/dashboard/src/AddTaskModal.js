@@ -12,7 +12,6 @@ const AddTaskModal = ({show, onHide, onAddTask}) => {
             return;
         }
         const task = {taskName, dueDate, status};
-        console.log('Submitting task:', task);  // Debugging log
         onAddTask(task);
         setTaskName('');
         setDueDate('');

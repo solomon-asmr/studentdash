@@ -115,7 +115,6 @@ function CourseDetails({studentInfo, downloadAssignmentFiles}) {
                 // Update the personalActivities state to include the new task
                 setPersonalActivities([...personalActivities, newTask]);
 
-                console.log('Task added successfully:', jsonResponse.task_id);
             } else {
                 console.error('Failed to add task:', jsonResponse.error);
             }
