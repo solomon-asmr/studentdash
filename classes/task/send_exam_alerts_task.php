@@ -64,8 +64,9 @@ class send_exam_alerts_task extends \core\task\scheduled_task {
                 $email->addTo($exam->email);
                 $email->addContent("text/plain", strip_tags($body));
                 $email->addContent("text/html", nl2br($body));
+                $SENDGRID_API_KEY = 'YOUR REAL SENDGRID API KEY'; // Replace with your SendGrid API key
 
-                $sendgrid = new SendGrid('REDACTED'); // Replace with your SendGrid API key
+                $sendgrid = new SendGrid($SENDGRID_API_KEY);
                 try {
                     $response = $sendgrid->send($email);
                     if ($response->statusCode() >= 200 && $response->statusCode() < 300) {
